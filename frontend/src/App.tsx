@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { WagmiConfig, createConfig, configureChains, mainnet } from 'wagmi';
 import { publicProvider } from 'wagmi/providers/public';
 import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
+import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
 
 import Dashboard from './components/Dashboard';
 import PatentDetails from './components/PatentDetails';
@@ -13,7 +14,15 @@ const { chains, publicClient } = configureChains([mainnet], [publicProvider()]);
 
 const config = createConfig({
   autoConnect: true,
-  connectors: [new MetaMaskConnector({ chains })],
+  connectors: [
+    new MetaMaskConnector({ chains }),
+    new WalletConnectConnector({
+      chains,
+      options: {
+        projectId: process.env.REACT_APP_WALLETCONNECT_PROJECT_ID || '',
+      },
+    }),
+  ],
   publicClient,
 });
 

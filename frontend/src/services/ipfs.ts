@@ -10,23 +10,61 @@ const ipfs = create({
 });
 
 export interface PatentMetadata {
-  patentId: string;
-  title: string;
-  description: string;
-  inventors: string[];
-  filingDate: string;
-  expirationDate: string;
-  valuationReport: string;
-  complianceDocuments: string[];
-  revenueProjections: {
+  type: 'platform_token' | 'patent_asset_token';
+  patentId?: string;
+  title?: string;
+  description?: string;
+  inventors?: string[];
+  filingDate?: string;
+  expirationDate?: string;
+  valuationReport?: string;
+  complianceDocuments?: string[];
+  revenueProjections?: {
     year: number;
     projectedRevenue: number;
   }[];
+  compliance?: {
+    legalOpinion: string;
+    auditReport: string;
+    regulatoryLicense: string;
+    corporateStructure: string;
+  };
+  governance?: {
+    votingRights: boolean;
+    proposalThreshold: string;
+    quorumPercentage: number;
+  };
+  patent?: {
+    number: string;
+    title: string;
+    inventors: string[];
+    filingDate: string;
+    expirationDate: string;
+    jurisdiction: string;
+  };
+  valuation?: {
+    currentValue: number;
+    currency: string;
+    valuationDate: string;
+    valuationMethod: string;
+    valuationReport: string;
+  };
+  legal?: {
+    patentCertificate: string;
+    legalStatus: string;
+    complianceDocuments: string[];
+  };
+  technical?: {
+    technicalDescription: string;
+    priorArt: string;
+    claims: string;
+  };
+  updatedAt: string;
 }
 
-export const uploadPatentMetadata = async (metadata: PatentMetadata): Promise<string> => {
+export const uploadToIPFS = async (data: any): Promise<string> => {
   try {
-    const result = await ipfs.add(JSON.stringify(metadata));
+    const result = await ipfs.add(JSON.stringify(data, null, 2));
     return result.path;
   } catch (error) {
     console.error('Error uploading to IPFS:', error);
@@ -34,7 +72,7 @@ export const uploadPatentMetadata = async (metadata: PatentMetadata): Promise<st
   }
 };
 
-export const getPatentMetadata = async (hash: string): Promise<PatentMetadata> => {
+export const getFromIPFS = async (hash: string): Promise<any> => {
   try {
     const chunks = [];
     for await (const chunk of ipfs.cat(hash)) {
@@ -44,6 +82,25 @@ export const getPatentMetadata = async (hash: string): Promise<PatentMetadata> =
     return JSON.parse(data);
   } catch (error) {
     console.error('Error fetching from IPFS:', error);
+    throw error;
+  }
+};
+
+export const uploadFileToIPFS = async (file: File): Promise<string> => {
+  try {
+    const result = await ipfs.add(file);
+    return result.path;
+  } catch (error) {
+    console.error('Error uploading file to IPFS:', error);
+    throw error;
+  }
+};
+
+export const pinToIPFS = async (hash: string): Promise<void> => {
+  try {
+    await ipfs.pin.add(hash);
+  } catch (error) {
+    console.error('Error pinning to IPFS:', error);
     throw error;
   }
 };
