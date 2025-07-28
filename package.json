@@ -8,9 +8,12 @@
     "test": "hardhat test",
     "coverage": "hardhat coverage",
     "gas-reporter": "hardhat test --gas-reporter",
-    "deploy:localhost": "hardhat run scripts/deploy.js --network localhost",
-    "deploy:goerli": "hardhat run scripts/deploy.js --network goerli",
-    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "deploy:localhost": "hardhat run scripts/deploy-guidecoin.js --network localhost",
+    "deploy:goerli": "hardhat run scripts/deploy-guidecoin.js --network goerli",
+    "deploy:sepolia": "hardhat run scripts/deploy-guidecoin.js --network sepolia",
+    "deploy:mainnet": "hardhat run scripts/deploy-guidecoin.js --network mainnet",
+    "upgrade:localhost": "hardhat run scripts/upgrade-guidecoin.js --network localhost",
+    "upgrade:goerli": "hardhat run scripts/upgrade-guidecoin.js --network goerli",
     "node": "hardhat node",
     "clean": "hardhat clean",
     "verify": "hardhat verify",
@@ -40,6 +43,7 @@
     "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
     "@nomicfoundation/hardhat-toolbox": "^3.0.0",
     "@nomicfoundation/hardhat-verify": "^1.0.0",
+    "@openzeppelin/hardhat-upgrades": "^1.28.0",
     "@typechain/ethers-v6": "^0.4.0",
     "@typechain/hardhat": "^8.0.0",
     "@types/chai": "^4.2.0",
@@ -58,6 +62,7 @@
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
     "@openzeppelin/contracts": "^4.9.0",
+    "@openzeppelin/contracts-upgradeable": "^4.9.0",
     "dotenv": "^16.3.1"
   },
   "engines": {
