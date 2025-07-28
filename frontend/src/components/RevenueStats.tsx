@@ -4,45 +4,73 @@ import { formatEther, parseEther } from 'viem';
 
 const RevenueStats: React.FC = () => {
   const { address } = useAccount();
-  const [selectedToken, setSelectedToken] = useState('0x123...');
   const [distributeAmount, setDistributeAmount] = useState('');
 
-  // Mock data - in real app, fetch from contracts
-  const revenueData = {
-    totalDistributed: '150000',
-    pendingRevenue: '2500',
-    claimableRounds: [
-      { roundId: 1, amount: '1000', token: 'USDC', date: '2024-01-15' },
-      { roundId: 2, amount: '1500', token: 'USDC', date: '2024-01-30' }
+  // 获取用户可领取的收益
+  const { data: claimableRevenue } = useContractRead({
+    address: process.env.REACT_APP_GUIDECOIN_ADDRESS as `0x${string}`,
+    abi: [
+      {
+        name: 'getClaimableRevenue',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [{ name: 'user', type: 'address' }],
+        outputs: [{ name: '', type: 'uint256' }]
+      }
     ],
-    distributionHistory: [
-      { roundId: 3, amount: '5000', token: 'USDC', date: '2024-02-15', claimed: true },
-      { roundId: 4, amount: '3000', token: 'USDC', date: '2024-02-28', claimed: true }
-    ]
-  };
+    functionName: 'getClaimableRevenue',
+    args: [address as `0x${string}`],
+    enabled: !!address
+  });
 
-  const patentTokens = [
-    { address: '0x123...', name: 'BioPharma Patent #001', symbol: 'BPP001' },
-    { address: '0x456...', name: 'BioPharma Patent #002', symbol: 'BPP002' }
-  ];
+  // 获取总分配收益
+  const { data: totalDistributedRevenue } = useContractRead({
+    address: process.env.REACT_APP_GUIDECOIN_ADDRESS as `0x${string}`,
+    abi: [
+      {
+        name: 'totalDistributedRevenue',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [],
+        outputs: [{ name: '', type: 'uint256' }]
+      }
+    ],
+    functionName: 'totalDistributedRevenue'
+  });
 
-  // Contract interactions (mock)
+  // 获取当前分配轮次
+  const { data: currentRound } = useContractRead({
+    address: process.env.REACT_APP_GUIDECOIN_ADDRESS as `0x${string}`,
+    abi: [
+      {
+        name: 'currentRevenueRound',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [],
+        outputs: [{ name: '', type: 'uint256' }]
+      }
+    ],
+    functionName: 'currentRevenueRound'
+  });
+
+  // 领取收益
   const { write: claimRevenue, isLoading: isClaiming } = useContractWrite({
-    address: process.env.REACT_APP_REVENUE_DISTRIBUTION_ADDRESS as `0x${string}`,
+    address: process.env.REACT_APP_GUIDECOIN_ADDRESS as `0x${string}`,
     abi: [
       {
         name: 'claimRevenue',
         type: 'function',
         stateMutability: 'nonpayable',
-        inputs: [{ name: 'roundId', type: 'uint256' }],
+        inputs: [],
         outputs: []
       }
     ],
-    functionName: 'claimRevenue',
+    functionName: 'claimRevenue'
   });
 
+  // 分配收益 (仅管理员)
   const { write: distributeRevenue, isLoading: isDistributing } = useContractWrite({
-    address: process.env.REACT_APP_REVENUE_DISTRIBUTION_ADDRESS as `0x${string}`,
+    address: process.env.REACT_APP_GUIDECOIN_ADDRESS as `0x${string}`,
     abi: [
       {
         name: 'distributeRevenue',
@@ -52,11 +80,11 @@ const RevenueStats: React.FC = () => {
         outputs: []
       }
     ],
-    functionName: 'distributeRevenue',
+    functionName: 'distributeRevenue'
   });
 
-  const handleClaimRevenue = (roundId: number) => {
-    claimRevenue({ args: [BigInt(roundId)] });
+  const handleClaimRevenue = () => {
+    claimRevenue();
   };
 
   const handleDistributeRevenue = () => {
@@ -67,7 +95,7 @@ const RevenueStats: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Revenue Overview */}
+      {/* 收益概览 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
@@ -82,10 +110,10 @@ const RevenueStats: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Revenue Distributed
+                    可领取收益
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    ${parseFloat(revenueData.totalDistributed).toLocaleString()}
+                    {claimableRevenue ? formatEther(claimableRevenue) : '0'} USDC
                   </dd>
                 </dl>
               </div>
@@ -106,10 +134,10 @@ const RevenueStats: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Pending Revenue
+                    总分配收益
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    ${parseFloat(revenueData.pendingRevenue).toLocaleString()}
+                    {totalDistributedRevenue ? formatEther(totalDistributedRevenue) : '0'} USDC
                   </dd>
                 </dl>
               </div>
@@ -130,10 +158,10 @@ const RevenueStats: React.FC = () => {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">
-                    Claimable Rounds
+                    当前轮次
                   </dt>
                   <dd className="text-lg font-medium text-gray-900">
-                    {revenueData.claimableRounds.length}
+                    #{currentRound ? currentRound.toString() : '0'}
                   </dd>
                 </dl>
               </div>
@@ -142,67 +170,46 @@ const RevenueStats: React.FC = () => {
         </div>
       </div>
 
-      {/* Claimable Revenue */}
-      {revenueData.claimableRounds.length > 0 && (
+      {/* 领取收益 */}
+      {claimableRevenue && claimableRevenue > 0n && (
         <div className="bg-white shadow rounded-lg">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Claimable Revenue
+              领取收益
             </h3>
-            <div className="space-y-4">
-              {revenueData.claimableRounds.map((round) => (
-                <div key={round.roundId} className="flex items-center justify-between p-4 bg-green-50 rounded-lg">
-                  <div>
-                    <div className="flex items-center">
-                      <span className="text-sm font-medium text-gray-900">Round #{round.roundId}</span>
-                      <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        Claimable
-                      </span>
-                    </div>
-                    <div className="mt-1 text-sm text-gray-600">
-                      {round.amount} {round.token} • {round.date}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleClaimRevenue(round.roundId)}
-                    disabled={isClaiming}
-                    className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
-                  >
-                    {isClaiming ? 'Claiming...' : 'Claim'}
-                  </button>
+            <div className="bg-green-50 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-md font-medium text-green-900">
+                    您有可领取的收益
+                  </h4>
+                  <p className="text-sm text-green-700 mt-1">
+                    {formatEther(claimableRevenue)} USDC 可立即领取
+                  </p>
                 </div>
-              ))}
+                <button
+                  onClick={handleClaimRevenue}
+                  disabled={isClaiming}
+                  className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 disabled:opacity-50"
+                >
+                  {isClaiming ? '领取中...' : '领取收益'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Revenue Distribution (Admin) */}
+      {/* 收益分配 (管理员功能) */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Distribute Revenue (Admin)
+            收益分配 (管理员)
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Patent Token
-              </label>
-              <select
-                value={selectedToken}
-                onChange={(e) => setSelectedToken(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                {patentTokens.map((token) => (
-                  <option key={token.address} value={token.address}>
-                    {token.name} ({token.symbol})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Amount (USDC)
+                分配金额 (USDC)
               </label>
               <input
                 type="number"
@@ -218,58 +225,64 @@ const RevenueStats: React.FC = () => {
                 disabled={isDistributing || !distributeAmount}
                 className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {isDistributing ? 'Distributing...' : 'Distribute'}
+                {isDistributing ? '分配中...' : '分配收益'}
               </button>
             </div>
           </div>
+          <p className="text-sm text-gray-500 mt-2">
+            收益将按照 GUIDE 代币持有比例自动分配给所有持有者
+          </p>
         </div>
       </div>
 
-      {/* Distribution History */}
+      {/* 收益分配说明 */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Distribution History
+            收益分配机制
           </h3>
-          <div className="overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Round
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Amount
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {revenueData.distributionHistory.map((round) => (
-                  <tr key={round.roundId}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      #{round.roundId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {round.amount} {round.token}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {round.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        Claimed
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">1</span>
+                </div>
+              </div>
+              <div className="ml-4">
+                <h4 className="text-sm font-medium text-gray-900">专利收益收集</h4>
+                <p className="text-sm text-gray-600">
+                  来自专利授权、许可费用等收益汇集到平台
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">2</span>
+                </div>
+              </div>
+              <div className="ml-4">
+                <h4 className="text-sm font-medium text-gray-900">按比例分配</h4>
+                <p className="text-sm text-gray-600">
+                  根据 GUIDE 代币持有量按比例分配收益
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-bold">3</span>
+                </div>
+              </div>
+              <div className="ml-4">
+                <h4 className="text-sm font-medium text-gray-900">用户领取</h4>
+                <p className="text-sm text-gray-600">
+                  用户可随时领取已分配的收益
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
