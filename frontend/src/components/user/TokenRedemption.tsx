@@ -202,7 +202,7 @@ const TokenRedemption: React.FC = () => {
               parseEther(redeemAmount || '0'),
               selectedAsset as `0x${string}`
             ]
-          })}
+          } as any)}
           disabled={
             isRedeeming ||
             isRedeemConfirming ||

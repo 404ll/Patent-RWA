@@ -10,12 +10,14 @@
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "noImplicitOverride": false
+    "noImplicitOverride": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": [
     "src"
@@ -24,5 +26,10 @@
     "node_modules",
     "dist",
     "build"
-  ]
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      "skipLibCheck": true
+    }
+  }
 }

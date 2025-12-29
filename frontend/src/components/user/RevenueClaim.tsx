@@ -139,7 +139,7 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
       abi: PATENT_COIN_ABI,
       functionName: 'claimRevenue',
       args: [BigInt(roundId)],
-    });
+    } as any);
   };
 
   const handleBatchClaim = () => {

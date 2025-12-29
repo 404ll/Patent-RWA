@@ -265,7 +265,7 @@ const RevenueDistribution: React.FC = () => {
               // 设置 gas limit 上限，避免超过网络限制
               // Sepolia 测试网的 gas limit 上限通常是 16777216 (2^24)
               gas: BigInt(15000000) // 设置为 1500 万，留有余地
-            });
+            } as any);
           }}
           disabled={
             isDistributing ||

@@ -113,7 +113,7 @@ const TokenPurchase: React.FC = () => {
           functionName: 'buyWithETH',
           args: [patentAmountWei],
           value: ethAmountWei,
-        });
+        } as any);
       } catch (error: any) {
         console.error('购买失败:', error);
         alert(`购买失败: ${error.message || '未知错误'}`);

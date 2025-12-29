@@ -337,7 +337,7 @@ const PatentManagement: React.FC = () => {
                     BigInt(Math.floor(parseFloat(addForm.weight || '0') * 100)), // weight 是基点（100 = 1%）
                     addForm.ipfsMetadata || ''
                   ]
-                });
+                } as any);
               }}
               disabled={
                 !assetManagerAddress ||
@@ -467,7 +467,7 @@ const PatentManagement: React.FC = () => {
                     BigInt(updateForm.newValuationUSD || '0'), // 整数美元，不需要 parseEther
                     BigInt(Math.floor(parseFloat(updateForm.newWeight || '0') * 100)) // 将百分比转换为基点（100 = 1%）
                   ]
-                });
+                } as any);
               }}
               disabled={
                 isUpdating ||
@@ -575,7 +575,7 @@ const PatentManagement: React.FC = () => {
                   abi: PATENT_ASSET_MANAGER_ABI,
                   functionName: 'removePatent',
                   args: [deactivatePatentNumber]
-                });
+                } as any);
               }}
               disabled={
                 !assetManagerAddress ||

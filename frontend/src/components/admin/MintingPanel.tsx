@@ -240,7 +240,7 @@ const MintingPanel: React.FC = () => {
               mintForm.recipient as `0x${string}`,
               mintForm.amount || '0'
             ]
-          })}
+          } as any)}
           disabled={
             isMinting ||
             isMintConfirming ||
