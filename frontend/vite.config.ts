@@ -10,6 +10,16 @@ export default defineConfig({
   },
   build: {
     outDir: 'build',
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'wagmi-vendor': ['wagmi', 'viem', 'connectkit'],
+          'query-vendor': ['@tanstack/react-query'],
+        },
+      },
+    },
   },
 });
 
