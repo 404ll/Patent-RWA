@@ -4,7 +4,10 @@ node_modules/
 
 # Hardhat files
 /cache
-/artifacts
+/artifacts/**
+!/artifacts/contracts
+/artifacts/contracts/**
+!/artifacts/contracts/**/*.json
 /typechain
 /typechain-types
 
