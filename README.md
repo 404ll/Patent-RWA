@@ -1,16 +1,16 @@
-# BioPharma Patent RWA System
+#  Patent RWA System
 
-基于以太坊的生物医药专利真实世界资产(RWA)代币化平台，采用**多专利资产支撑单一GUIDE代币**的创新架构，符合HKMA监管要求。
+基于以太坊的专利真实世界资产(RWA)代币化平台，采用**多专利资产支撑单一 Patent 代币**的创新架构，符合HKMA监管要求。
 
 ## �️ 系统架构
 
 ### 核心架构图
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    BioPharma Patent RWA System                  │
+│                      Patent RWA System                  │
 │                                                                 │
 │  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                    GuideCoin (GUIDE)                        │ │
+│  │                    PatentCoin                      │ │
 │  │                   统一专利资产代币                           │ │
 │  │                                                             │ │
 │  │ • ERC20 + ERC20Burnable + ERC20Pausable                    │ │
@@ -59,7 +59,7 @@
 ### 智能合约架构
 
 #### 核心合约
-- **GuideCoin.sol** - 主合约，集成所有功能
+- **PatentCoin.sol** - 主合约，集成所有功能
   - ERC20代币标准实现
   - 多专利资产管理
   - 统一收益分配机制
@@ -75,7 +75,7 @@
 ### 前端应用架构
 
 #### 核心组件
-- **Dashboard** - 主仪表板，显示GUIDE代币投资组合
+- **Dashboard** - 主仪表板，显示PATENT代币投资组合
 - **PatentAssetViewer** - 专利资产池管理界面
 - **RevenueStats** - 收益分配统计和领取
 - **CompliancePanel** - 合规管理面板
@@ -87,7 +87,7 @@
 
 #### 统一代币模式
 ```solidity
-contract GuideCoin is ERC20Upgradeable, AccessControlEnumerableUpgradeable {
+contract PatentCoin is ERC20Upgradeable, AccessControlEnumerableUpgradeable {
     // 专利资产结构
     struct PatentAsset {
         string patentNumber;     // 专利号
@@ -179,10 +179,10 @@ function _beforeTokenTransfer(address from, address to, uint256 amount) internal
     super._beforeTokenTransfer(from, to, amount);
     
     if (from != address(0) && to != address(0)) {
-        require(!_blacklisted[from], "GuideCoin: sender is blacklisted");
-        require(!_blacklisted[to], "GuideCoin: recipient is blacklisted");
-        require(!_frozen[from], "GuideCoin: sender is frozen");
-        require(!_frozen[to], "GuideCoin: recipient is frozen");
+        require(!_blacklisted[from], "PatentCoin: sender is blacklisted");
+        require(!_blacklisted[to], "PatentCoin: recipient is blacklisted");
+        require(!_frozen[from], "PatentCoin: sender is frozen");
+        require(!_frozen[to], "PatentCoin: recipient is frozen");
     }
 }
 ```
@@ -191,7 +191,7 @@ function _beforeTokenTransfer(address from, address to, uint256 amount) internal
 
 #### UUPS代理模式
 ```solidity
-contract GuideCoin is UUPSUpgradeable {
+contract PatentCoin is UUPSUpgradeable {
     function _authorizeUpgrade(address newImplementation) 
         internal 
         override 
@@ -231,10 +231,10 @@ npx hardhat compile
 
 # 部署到本地网络
 npx hardhat node
-npx hardhat run scripts/deploy-guidecoin.js --network localhost
+npx hardhat run scripts/deploy-patentcoin.js --network localhost
 
 # 部署到测试网
-npx hardhat run scripts/deploy-guidecoin.js --network goerli
+npx hardhat run scripts/deploy-patentcoin.js --network goerli
 ```
 
 ### 启动前端
@@ -246,7 +246,7 @@ npm start
 ## 📋 功能特性
 
 ### 专利资产管理
-- **多专利支撑**: 多个专利资产支撑单一GUIDE代币
+- **多专利支撑**: 多个专利资产支撑单一PATENT代币
 - **动态权重**: 支持专利资产权重调整
 - **实时估值**: 链上专利估值更新
 - **IPFS存储**: 去中心化专利文档存储
@@ -349,7 +349,7 @@ function unpause() external onlyRole(RESUME_ROLE);
 
 ```
 ├── contracts/                    # 智能合约
-│   ├── GuideCoin.sol            # 主合约 - 多专利资产支撑的GUIDE代币
+│   ├── PatentCoin.sol            # 主合约 - 多专利资产支撑的PATENT代币
 │   ├── TokenMetadataRegistry.sol # 元数据注册表
 │   ├── PatentVesting.sol        # 通用代币锁仓合约
 │   ├── PatentOracle.sol         # 预言机合约
@@ -359,9 +359,9 @@ function unpause() external onlyRole(RESUME_ROLE);
 │   └── mocks/                   # 测试用模拟合约
 │       └── MockERC20.sol        # 模拟ERC20代币
 ├── scripts/                     # 部署脚本
-│   └── deploy-guidecoin.js      # GuideCoin部署脚本
+│   └── deploy-patentcoin.js      # PatentCoin部署脚本
 ├── test/                        # 测试文件
-│   └── GuideCoin.test.js        # 完整测试套件
+│   └── PatentCoin.test.js        # 完整测试套件
 ├── frontend/                    # React前端
 │   ├── src/
 │   │   ├── components/          # React组件
@@ -375,7 +375,7 @@ function unpause() external onlyRole(RESUME_ROLE);
 │   │   └── hooks/               # React Hooks
 │   └── package.json             # 前端依赖
 ├── docs/                        # 文档
-│   └── GuideCoin-Documentation.md # 详细技术文档
+│   └── PatentCoin-Documentation.md # 详细技术文档
 ├── hardhat.config.js            # Hardhat配置
 ├── package.json                 # 项目依赖
 └── README.md                    # 项目说明
@@ -387,20 +387,20 @@ function unpause() external onlyRole(RESUME_ROLE);
 ```typescript
 const PatentAssetViewer: React.FC = () => {
   const { data: patentCount } = useContractRead({
-    address: GUIDECOIN_ADDRESS,
-    abi: guideCoinABI,
+    address: PATENTCOIN_ADDRESS,
+    abi: patentCoinABI,
     functionName: 'getPatentCount',
   });
 
   const { data: totalValuation } = useContractRead({
-    address: GUIDECOIN_ADDRESS,
-    abi: guideCoinABI,
+    address: PATENTCOIN_ADDRESS,
+    abi: patentCoinABI,
     functionName: 'totalPatentValuation',
   });
 
   const { data: backingRatio } = useContractRead({
-    address: GUIDECOIN_ADDRESS,
-    abi: guideCoinABI,
+    address: PATENTCOIN_ADDRESS,
+    abi: patentCoinABI,
     functionName: 'getBackingRatio',
   });
 
@@ -436,15 +436,15 @@ const RevenueClaimCard: React.FC<{ roundId: number }> = ({ roundId }) => {
   const { address } = useAccount();
   
   const { data: claimableAmount } = useContractRead({
-    address: GUIDECOIN_ADDRESS,
-    abi: guideCoinABI,
+    address: PATENTCOIN_ADDRESS,
+    abi: patentCoinABI,
     functionName: 'getClaimableRevenue',
     args: [address, roundId],
   });
 
   const { write: claimRevenue } = useContractWrite({
-    address: GUIDECOIN_ADDRESS,
-    abi: guideCoinABI,
+    address: PATENTCOIN_ADDRESS,
+    abi: patentCoinABI,
     functionName: 'claimRevenue',
     args: [roundId],
   });
@@ -495,7 +495,7 @@ const RevenueClaimCard: React.FC<{ roundId: number }> = ({ roundId }) => {
 ## 📈 经济模型
 
 ### 资产支撑机制
-- **支撑比率** = 专利总估值 / GUIDE代币总供应量
+- **支撑比率** = 专利总估值 / PATENT代币总供应量
 - **动态调整**: 专利估值变化时自动更新支撑比率
 - **透明计算**: 链上实时计算，完全透明
 

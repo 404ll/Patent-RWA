@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 
 /**
  * @title ComplianceManager
- * @dev 管理GuideCoin的合规控制，包括白名单、黑名单和地址冻结
+ * @dev 管理PatentCoin的合规控制，包括白名单、黑名单和地址冻结
  */
-contract ComplianceManager is BaseGuideCoinModule, IComplianceManager {
+contract ComplianceManager is BasePatentCoinModule, IComplianceManager {
     // ============ 状态变量 ============
     mapping(address => bool) private _blacklisted;
     mapping(address => bool) private _frozen;
@@ -21,8 +21,8 @@ contract ComplianceManager is BaseGuideCoinModule, IComplianceManager {
     uint256 public whitelistedCount;
 
     // ============ 初始化函数 ============
-    function initialize(address _guideCoinContract, address admin) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+    function initialize(address _patentCoinContract, address admin) public initializer {
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
         whitelistEnabled = false;
     }
 

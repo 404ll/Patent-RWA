@@ -1,27 +1,27 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
  * @title RedemptionManager
- * @dev 管理GuideCoin的赎回机制，包括赎回请求、处理流程和时间窗口控制
+ * @dev 管理PatentCoin的赎回机制，包括赎回请求、处理流程和时间窗口控制
  */
-contract RedemptionManager is BaseGuideCoinModule, IRedemptionManager {
+contract RedemptionManager is BasePatentCoinModule, IRedemptionManager {
     // ============ 状态变量 ============
     mapping(uint256 => RedemptionRequest) public redemptionRequests;
     uint256 public redemptionRequestCounter;
     
     // 赎回配置
     uint256 public constant REDEMPTION_PROCESSING_TIME = 24 hours;
-    uint256 public minRedemptionAmount = 100 * 10**18; // 最小赎回金额
-    uint256 public maxRedemptionAmount = 1000000 * 10**18; // 最大赎回金额
-    uint256 public dailyRedemptionLimit = 10000000 * 10**18; // 日赎回限额
+    uint256 public minRedemptionAmount; // 最小赎回金额
+    uint256 public maxRedemptionAmount; // 最大赎回金额
+    uint256 public dailyRedemptionLimit; // 日赎回限额
     
     // 赎回费用
-    uint256 public redemptionFeeRate = 50; // 0.5%
+    uint256 public redemptionFeeRate; // 0.5%
     uint256 public constant MAX_REDEMPTION_FEE = 500; // 5%
     address public feeRecipient;
 
@@ -51,13 +51,19 @@ contract RedemptionManager is BaseGuideCoinModule, IRedemptionManager {
 
     // ============ 初始化函数 ============
     function initialize(
-        address _guideCoinContract,
+        address _patentCoinContract,
         address admin,
         address _feeRecipient
     ) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
         _requireNonZeroAddress(_feeRecipient, "RedemptionManager: fee recipient cannot be zero address");
         feeRecipient = _feeRecipient;
+        
+        // 初始化赎回配置
+        minRedemptionAmount = 100 * 10**18; // 最小赎回金额
+        maxRedemptionAmount = 1000000 * 10**18; // 最大赎回金额
+        dailyRedemptionLimit = 10000000 * 10**18; // 日赎回限额
+        redemptionFeeRate = 50; // 0.5%
     }
 
     // ============ 赎回请求函数 ============
@@ -68,7 +74,7 @@ contract RedemptionManager is BaseGuideCoinModule, IRedemptionManager {
         address requester,
         uint256 amount,
         address preferredAsset
-    ) external override onlyGuideCoin nonReentrant returns (uint256) {
+    ) external override onlyPatentCoin nonReentrant returns (uint256) {
         _requireNonZeroAddress(requester, "RedemptionManager: invalid requester");
         _requirePositiveValue(amount, "RedemptionManager: invalid amount");
         require(amount >= minRedemptionAmount, "RedemptionManager: amount below minimum");
@@ -125,7 +131,7 @@ contract RedemptionManager is BaseGuideCoinModule, IRedemptionManager {
         uint256 fee = (request.amount * redemptionFeeRate) / 10000;
         uint256 netAmount = request.amount - fee;
 
-        // 这里应该调用GuideCoin合约的销毁函数
+        // 这里应该调用PatentCoin合约的销毁函数
         // 实际实现中需要与主合约交互
 
         emit RedemptionProcessed(requestId, request.requester, netAmount);

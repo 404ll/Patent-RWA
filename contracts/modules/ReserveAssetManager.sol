@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
  * @title ReserveAssetManager
- * @dev 管理GuideCoin的储备资产，包括资产管理、价值计算和支撑比率
+ * @dev 管理PatentCoin的储备资产，包括资产管理、价值计算和支撑比率
  */
-contract ReserveAssetManager is BaseGuideCoinModule, IReserveAssetManager {
+contract ReserveAssetManager is BasePatentCoinModule, IReserveAssetManager {
     // ============ 状态变量 ============
     mapping(address => ReserveAsset) public reserveAssets;
     address[] public reserveAssetsList;
@@ -21,12 +21,12 @@ contract ReserveAssetManager is BaseGuideCoinModule, IReserveAssetManager {
     mapping(AssetType => uint256) public typeValuation;
 
     // 风险管理
-    uint256 public maxAssetWeight = 5000; // 50% 最大单一资产权重
-    uint256 public minReserveRatio = 10000; // 100% 最小储备比率
+    uint256 public maxAssetWeight; // 50% 最大单一资产权重
+    uint256 public minReserveRatio; // 100% 最小储备比率
     
     // 价格更新控制
     mapping(address => uint256) public lastPriceUpdate;
-    uint256 public priceUpdateInterval = 1 hours;
+    uint256 public priceUpdateInterval;
 
     // ============ 事件 ============
     event AssetTypeSet(address indexed asset, AssetType assetType);
@@ -34,8 +34,13 @@ contract ReserveAssetManager is BaseGuideCoinModule, IReserveAssetManager {
     event AssetWeightExceeded(address indexed asset, uint256 weight, uint256 maxWeight);
 
     // ============ 初始化函数 ============
-    function initialize(address _guideCoinContract, address admin) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+    function initialize(address _patentCoinContract, address admin) public initializer {
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
+        
+        // 初始化风险管理参数
+        maxAssetWeight = 5000; // 50% 最大单一资产权重
+        minReserveRatio = 10000; // 100% 最小储备比率
+        priceUpdateInterval = 1 hours; // 价格更新间隔
     }
 
     // ============ 储备资产管理 ============

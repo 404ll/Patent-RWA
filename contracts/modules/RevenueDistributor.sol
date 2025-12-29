@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
  * @title RevenueDistributor
- * @dev 管理GuideCoin的收益分配，包括收益分配、用户领取和平台费用
+ * @dev 管理PatentCoin的收益分配，包括收益分配、用户领取和平台费用
  */
-contract RevenueDistributor is BaseGuideCoinModule, IRevenueDistributor {
+contract RevenueDistributor is BasePatentCoinModule, IRevenueDistributor {
     // ============ 状态变量 ============
     struct RevenueRoundInternal {
         uint256 totalAmount;
@@ -26,7 +26,7 @@ contract RevenueDistributor is BaseGuideCoinModule, IRevenueDistributor {
     
     // 平台费用配置
     address public treasuryAddress;
-    uint256 public platformFeeRate = 250; // 2.5%
+    uint256 public platformFeeRate; // 2.5%
     uint256 public constant MAX_FEE_RATE = 1000; // 10%
 
     // 收益统计
@@ -35,7 +35,7 @@ contract RevenueDistributor is BaseGuideCoinModule, IRevenueDistributor {
     uint256 public totalPlatformFees;
 
     // 领取时间限制
-    uint256 public claimDeadline = 365 days; // 1年领取期限
+    uint256 public claimDeadline; // 1年领取期限
 
     // ============ 事件 ============
     event TreasuryAddressUpdated(address indexed oldTreasury, address indexed newTreasury);
@@ -45,13 +45,17 @@ contract RevenueDistributor is BaseGuideCoinModule, IRevenueDistributor {
 
     // ============ 初始化函数 ============
     function initialize(
-        address _guideCoinContract,
+        address _patentCoinContract,
         address admin,
         address _treasuryAddress
     ) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
         _requireNonZeroAddress(_treasuryAddress, "RevenueDistributor: treasury cannot be zero address");
         treasuryAddress = _treasuryAddress;
+        
+        // 初始化平台费用和领取期限
+        platformFeeRate = 250; // 2.5%
+        claimDeadline = 365 days; // 1年领取期限
     }
 
     // ============ 收益分配函数 ============
@@ -100,7 +104,7 @@ contract RevenueDistributor is BaseGuideCoinModule, IRevenueDistributor {
         uint256 roundId,
         address user,
         uint256 userBalance
-    ) external override onlyGuideCoin nonReentrant returns (uint256) {
+    ) external override onlyPatentCoin nonReentrant returns (uint256) {
         require(roundId <= currentRevenueRound, "RevenueDistributor: invalid round");
         
         RevenueRoundInternal storage round = revenueRounds[roundId];
@@ -136,7 +140,7 @@ contract RevenueDistributor is BaseGuideCoinModule, IRevenueDistributor {
         uint256[] calldata roundIds,
         address user,
         uint256 userBalance
-    ) external onlyGuideCoin nonReentrant returns (uint256 totalClaimed) {
+    ) external onlyPatentCoin nonReentrant returns (uint256 totalClaimed) {
         for (uint256 i = 0; i < roundIds.length; i++) {
             if (!hasClaimedRevenue(roundIds[i], user)) {
                 totalClaimed += this.claimRevenue(roundIds[i], user, userBalance);

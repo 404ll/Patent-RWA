@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 
 /**
  * @title PatentAssetManager
- * @dev 管理GuideCoin的专利资产，包括添加、更新和估值管理
+ * @dev 管理PatentCoin的专利资产，包括添加、更新和估值管理
  */
-contract PatentAssetManager is BaseGuideCoinModule, IPatentAssetManager {
+contract PatentAssetManager is BasePatentCoinModule, IPatentAssetManager {
     // ============ 状态变量 ============
     mapping(string => PatentAsset) public patents;
     string[] public patentNumbers;
@@ -33,8 +33,8 @@ contract PatentAssetManager is BaseGuideCoinModule, IPatentAssetManager {
     event PatentCategorized(string indexed patentNumber, string indexed category);
 
     // ============ 初始化函数 ============
-    function initialize(address _guideCoinContract, address admin) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+    function initialize(address _patentCoinContract, address admin) public initializer {
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
     }
 
     // ============ 专利管理函数 ============

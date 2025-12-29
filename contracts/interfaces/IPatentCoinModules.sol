@@ -2,8 +2,8 @@
 pragma solidity ^0.8.19;
 
 /**
- * @title IGuideCoinModules
- * @dev 定义GuideCoin各个模块的基础接口
+ * @title IPatentCoinModules
+ * @dev 定义PatentCoin各个模块的基础接口
  */
 
 // ============ 角色管理接口 ============

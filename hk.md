@@ -432,7 +432,7 @@ UPGRADER_ROLE：如果采用可升级模型，负责升级(upgrade) 智能合约
 相关资料
 [1]Hong Kong Monetary Authority. (2025, May 26). Consultation paper on the proposed AML/CFT requirements for regulated stablecoin activities. https://www.hkma.gov.hk/media/eng/regulatory-resources/consultations/20250526_Consultation_Paper_on_the_Proposed_AMLCFT_Req_for_Regulated_Stablecoin_Activities.pdf
 
-[2]Hong Kong Monetary Authority. (2025, May). Draft guideline on supervision of licensed stablecoin issuers. https://www.hkma.gov.hk/media/eng/regulatory-resources/consultations/20250526_Consultation_on_Draft_Guideline_on_Supervision_of_Licensed_Stablecoin_Issuers.pdf
+[2]Hong Kong Monetary Authority. (2025, May). Draft patentline on supervision of licensed stablecoin issuers. https://www.hkma.gov.hk/media/eng/regulatory-resources/consultations/20250526_Consultation_on_Draft_Guideline_on_Supervision_of_Licensed_Stablecoin_Issuers.pdf
 
 
 

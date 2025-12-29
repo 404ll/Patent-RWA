@@ -8,11 +8,11 @@ import "../modules/ReserveAssetManager.sol";
 import "../modules/RevenueDistributor.sol";
 import "../modules/RedemptionManager.sol";
 import "../modules/AuditLogger.sol";
-import "../GuideCoinModular.sol";
+import "../PatentCoinModular.sol";
 
 /**
  * @title DeploymentHelper
- * @dev 帮助部署GuideCoin模块化系统的辅助合约
+ * @dev 帮助部署PatentCoin模块化系统的辅助合约
  */
 contract DeploymentHelper {
     struct DeploymentConfig {
@@ -41,11 +41,11 @@ contract DeploymentHelper {
         address revenueDistributor;
         address redemptionManager;
         address auditLogger;
-        address guideCoin;
+        address patentCoin;
     }
 
     event ModuleDeployed(string indexed moduleName, address indexed moduleAddress);
-    event SystemDeployed(address indexed guideCoin, address indexed admin);
+    event SystemDeployed(address indexed patentCoin, address indexed admin);
 
     /**
      * @dev 部署所有模块和主合约
@@ -66,9 +66,9 @@ contract DeploymentHelper {
         deployed.auditLogger = _deployAuditLogger(config);
 
         // 部署主合约
-        deployed.guideCoin = _deployGuideCoin(config, deployed);
+        deployed.patentCoin = _deployPatentCoin(config, deployed);
 
-        emit SystemDeployed(deployed.guideCoin, config.admin);
+        emit SystemDeployed(deployed.patentCoin, config.admin);
     }
 
     /**
@@ -181,13 +181,13 @@ contract DeploymentHelper {
     /**
      * @dev 部署主合约
      */
-    function _deployGuideCoin(
+    function _deployPatentCoin(
         DeploymentConfig memory config,
         DeployedContracts memory modules
     ) internal returns (address) {
-        GuideCoinModular guideCoin = new GuideCoinModular();
+        PatentCoinModular patentCoin = new PatentCoinModular();
         
-        guideCoin.initialize(
+        patentCoin.initialize(
             config.admin,
             modules.roleManager,
             modules.complianceManager,
@@ -199,27 +199,27 @@ contract DeploymentHelper {
             config.treasury
         );
 
-        // 更新所有模块的GuideCoin合约地址
-        _updateModuleReferences(modules, address(guideCoin));
+        // 更新所有模块的PatentCoin合约地址
+        _updateModuleReferences(modules, address(patentCoin));
 
-        emit ModuleDeployed("GuideCoinModular", address(guideCoin));
-        return address(guideCoin);
+        emit ModuleDeployed("PatentCoinModular", address(patentCoin));
+        return address(patentCoin);
     }
 
     /**
-     * @dev 更新模块中的GuideCoin合约引用
+     * @dev 更新模块中的PatentCoin合约引用
      */
     function _updateModuleReferences(
         DeployedContracts memory modules,
-        address guideCoinAddress
+        address patentCoinAddress
     ) internal {
-        RoleManager(modules.roleManager).setGuideCoinContract(guideCoinAddress);
-        ComplianceManager(modules.complianceManager).setGuideCoinContract(guideCoinAddress);
-        PatentAssetManager(modules.patentAssetManager).setGuideCoinContract(guideCoinAddress);
-        ReserveAssetManager(modules.reserveAssetManager).setGuideCoinContract(guideCoinAddress);
-        RevenueDistributor(modules.revenueDistributor).setGuideCoinContract(guideCoinAddress);
-        RedemptionManager(modules.redemptionManager).setGuideCoinContract(guideCoinAddress);
-        AuditLogger(modules.auditLogger).setGuideCoinContract(guideCoinAddress);
+        RoleManager(modules.roleManager).setPatentCoinContract(patentCoinAddress);
+        ComplianceManager(modules.complianceManager).setPatentCoinContract(patentCoinAddress);
+        PatentAssetManager(modules.patentAssetManager).setPatentCoinContract(patentCoinAddress);
+        ReserveAssetManager(modules.reserveAssetManager).setPatentCoinContract(patentCoinAddress);
+        RevenueDistributor(modules.revenueDistributor).setPatentCoinContract(patentCoinAddress);
+        RedemptionManager(modules.redemptionManager).setPatentCoinContract(patentCoinAddress);
+        AuditLogger(modules.auditLogger).setPatentCoinContract(patentCoinAddress);
     }
 
     /**

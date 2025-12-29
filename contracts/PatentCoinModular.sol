@@ -10,7 +10,7 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
-import "./interfaces/IGuideCoinModules.sol";
+import "./interfaces/IPatentCoinModules.sol";
 import "./modules/RoleManager.sol";
 import "./modules/ComplianceManager.sol";
 import "./modules/PatentAssetManager.sol";
@@ -20,7 +20,7 @@ import "./modules/RedemptionManager.sol";
 import "./modules/AuditLogger.sol";
 
 /**
- * @title GuideCoinModular
+ * @title PatentCoinModular
  * @dev HKMA合规的可升级ERC20稳定币，采用模块化架构和多签控制的角色分离
  *
  * 核心特性:
@@ -32,7 +32,7 @@ import "./modules/AuditLogger.sol";
  * - 白名单和黑名单机制
  * - 专利资产支撑和收益分配
  */
-contract GuideCoinModular is
+contract PatentCoinModular is
     Initializable,
     ERC20Upgradeable,
     ERC20BurnableUpgradeable,
@@ -70,12 +70,12 @@ contract GuideCoinModular is
 
     // ============ 系统配置 ============
     address public treasuryAddress;
-    uint256 public platformFeeRate = 250; // 2.5%
+    uint256 public platformFeeRate; // 2.5%
 
     // ============ 风险管理 ============
-    uint256 public maxSupply = 1_000_000_000 * 10 ** 18;
-    uint256 public dailyMintLimit = 10_000_000 * 10 ** 18;
-    uint256 public dailyBurnLimit = 10_000_000 * 10 ** 18;
+    uint256 public maxSupply;
+    uint256 public dailyMintLimit;
+    uint256 public dailyBurnLimit;
 
     mapping(uint256 => uint256) public dailyMintAmount;
     mapping(uint256 => uint256) public dailyBurnAmount;
@@ -103,7 +103,7 @@ contract GuideCoinModular is
     modifier onlyAuthorizedMultisig() {
         require(
             roleManager.isAuthorizedMultisig(msg.sender),
-            "GuideCoin: caller is not authorized multisig"
+            "PatentCoin: caller is not authorized multisig"
         );
         _;
     }
@@ -111,11 +111,11 @@ contract GuideCoinModular is
     modifier onlyRoleMultisig(bytes32 role) {
         require(
             hasRole(role, msg.sender),
-            "GuideCoin: caller does not have required role"
+            "PatentCoin: caller does not have required role"
         );
         require(
             roleManager.isAuthorizedMultisig(msg.sender),
-            "GuideCoin: caller is not authorized multisig"
+            "PatentCoin: caller is not authorized multisig"
         );
         _;
     }
@@ -124,7 +124,7 @@ contract GuideCoinModular is
         uint256 today = block.timestamp / 1 days;
         require(
             dailyMintAmount[today] + amount <= dailyMintLimit,
-            "GuideCoin: daily mint limit exceeded"
+            "PatentCoin: daily mint limit exceeded"
         );
         dailyMintAmount[today] += amount;
         _;
@@ -134,7 +134,7 @@ contract GuideCoinModular is
         uint256 today = block.timestamp / 1 days;
         require(
             dailyBurnAmount[today] + amount <= dailyBurnLimit,
-            "GuideCoin: daily burn limit exceeded"
+            "PatentCoin: daily burn limit exceeded"
         );
         dailyBurnAmount[today] += amount;
         _;
@@ -172,39 +172,39 @@ contract GuideCoinModular is
         // 验证地址
         require(
             treasury != address(0),
-            "GuideCoin: treasury cannot be zero address"
+            "PatentCoin: treasury cannot be zero address"
         );
         require(
             _roleManager != address(0),
-            "GuideCoin: roleManager cannot be zero address"
+            "PatentCoin: roleManager cannot be zero address"
         );
         require(
             _complianceManager != address(0),
-            "GuideCoin: complianceManager cannot be zero address"
+            "PatentCoin: complianceManager cannot be zero address"
         );
         require(
             _patentAssetManager != address(0),
-            "GuideCoin: patentAssetManager cannot be zero address"
+            "PatentCoin: patentAssetManager cannot be zero address"
         );
         require(
             _reserveAssetManager != address(0),
-            "GuideCoin: reserveAssetManager cannot be zero address"
+            "PatentCoin: reserveAssetManager cannot be zero address"
         );
         require(
             _revenueDistributor != address(0),
-            "GuideCoin: revenueDistributor cannot be zero address"
+            "PatentCoin: revenueDistributor cannot be zero address"
         );
         require(
             _redemptionManager != address(0),
-            "GuideCoin: redemptionManager cannot be zero address"
+            "PatentCoin: redemptionManager cannot be zero address"
         );
         require(
             _auditLogger != address(0),
-            "GuideCoin: auditLogger cannot be zero address"
+            "PatentCoin: auditLogger cannot be zero address"
         );
 
         // 初始化父合约
-        __ERC20_init("GUIDE Coin", "GUIDE");
+        __ERC20_init("Patent Coin", "PATENT");
         __ERC20Burnable_init();
         __ERC20Pausable_init();
         __AccessControlEnumerable_init();
@@ -225,6 +225,12 @@ contract GuideCoinModular is
 
         // 设置资金库地址
         treasuryAddress = treasury;
+        
+        // 初始化系统配置和风险管理参数
+        platformFeeRate = 250; // 2.5%
+        maxSupply = 1_000_000_000 * 10 ** 18;
+        dailyMintLimit = 10_000_000 * 10 ** 18;
+        dailyBurnLimit = 10_000_000 * 10 ** 18;
     }
 
     // ============ 模块管理函数 ============
@@ -237,7 +243,7 @@ contract GuideCoinModular is
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             newModule != address(0),
-            "GuideCoin: new module cannot be zero address"
+            "PatentCoin: new module cannot be zero address"
         );
 
         address oldModule;
@@ -265,7 +271,7 @@ contract GuideCoinModular is
             oldModule = address(auditLogger);
             auditLogger = AuditLogger(newModule);
         } else {
-            revert("GuideCoin: unknown module name");
+            revert("PatentCoin: unknown module name");
         }
 
         emit ModuleUpdated(moduleName, oldModule, newModule);
@@ -285,17 +291,17 @@ contract GuideCoinModular is
         checkMintLimit(amount)
         logOperation(MINTER_ROLE, "MINT", to, amount)
     {
-        require(to != address(0), "GuideCoin: cannot mint to zero address");
-        require(amount > 0, "GuideCoin: amount must be greater than 0");
+        require(to != address(0), "PatentCoin: cannot mint to zero address");
+        require(amount > 0, "PatentCoin: amount must be greater than 0");
         require(
             totalSupply() + amount <= maxSupply,
-            "GuideCoin: exceeds max supply"
+            "PatentCoin: exceeds max supply"
         );
 
         // 合规检查
         require(
             complianceManager.checkTransferCompliance(address(0), to),
-            "GuideCoin: compliance check failed"
+            "PatentCoin: compliance check failed"
         );
 
         _mint(to, amount);
@@ -319,9 +325,9 @@ contract GuideCoinModular is
     {
         require(
             account != address(0),
-            "GuideCoin: cannot burn from zero address"
+            "PatentCoin: cannot burn from zero address"
         );
-        require(amount > 0, "GuideCoin: amount must be greater than 0");
+        require(amount > 0, "PatentCoin: amount must be greater than 0");
 
         _burn(account, amount);
         emit TokensBurned(account, amount, msg.sender);
@@ -360,20 +366,20 @@ contract GuideCoinModular is
         uint256 amount,
         address preferredAsset
     ) external nonReentrant returns (uint256) {
-        require(amount > 0, "GuideCoin: invalid amount");
+        require(amount > 0, "PatentCoin: invalid amount");
         require(
             balanceOf(msg.sender) >= amount,
-            "GuideCoin: insufficient balance"
+            "PatentCoin: insufficient balance"
         );
 
         // 合规检查
         require(
             !complianceManager.isBlacklisted(msg.sender),
-            "GuideCoin: address blacklisted"
+            "PatentCoin: address blacklisted"
         );
         require(
             !complianceManager.isFrozen(msg.sender),
-            "GuideCoin: address frozen"
+            "PatentCoin: address frozen"
         );
 
         // 转移代币到合约
@@ -425,11 +431,11 @@ contract GuideCoinModular is
     function claimRevenue(uint256 roundId) external nonReentrant {
         require(
             !complianceManager.isBlacklisted(msg.sender),
-            "GuideCoin: address blacklisted"
+            "PatentCoin: address blacklisted"
         );
         require(
             !complianceManager.isFrozen(msg.sender),
-            "GuideCoin: address frozen"
+            "PatentCoin: address frozen"
         );
 
         revenueDistributor.claimRevenue(
@@ -470,7 +476,7 @@ contract GuideCoinModular is
         if (from != address(0) && to != address(0)) {
             require(
                 complianceManager.checkTransferCompliance(from, to),
-                "GuideCoin: transfer not compliant"
+                "PatentCoin: transfer not compliant"
             );
         }
     }
@@ -584,8 +590,8 @@ contract GuideCoinModular is
         uint256 _mintLimit,
         uint256 _burnLimit
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(_mintLimit > 0, "GuideCoin: invalid mint limit");
-        require(_burnLimit > 0, "GuideCoin: invalid burn limit");
+        require(_mintLimit > 0, "PatentCoin: invalid mint limit");
+        require(_burnLimit > 0, "PatentCoin: invalid burn limit");
 
         dailyMintLimit = _mintLimit;
         dailyBurnLimit = _burnLimit;
@@ -599,7 +605,7 @@ contract GuideCoinModular is
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             _maxSupply >= totalSupply(),
-            "GuideCoin: max supply cannot be less than current supply"
+            "PatentCoin: max supply cannot be less than current supply"
         );
         maxSupply = _maxSupply;
     }
@@ -612,7 +618,7 @@ contract GuideCoinModular is
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             _treasury != address(0),
-            "GuideCoin: treasury cannot be zero address"
+            "PatentCoin: treasury cannot be zero address"
         );
         treasuryAddress = _treasury;
     }
@@ -623,7 +629,7 @@ contract GuideCoinModular is
     function setPlatformFeeRate(
         uint256 _feeRate
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(_feeRate <= 1000, "GuideCoin: fee rate cannot exceed 10%");
+        require(_feeRate <= 1000, "PatentCoin: fee rate cannot exceed 10%");
         platformFeeRate = _feeRate;
     }
 

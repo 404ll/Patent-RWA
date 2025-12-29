@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 
 /**
  * @title AuditLogger
- * @dev 管理GuideCoin的审计日志，包括操作记录、审计报告和合规追踪
+ * @dev 管理PatentCoin的审计日志，包括操作记录、审计报告和合规追踪
  */
-contract AuditLogger is BaseGuideCoinModule, IAuditLogger {
+contract AuditLogger is BasePatentCoinModule, IAuditLogger {
     // ============ 状态变量 ============
     OperationLog[] public operationLogs;
     mapping(bytes32 => uint256) public roleOperationCounts;
@@ -24,9 +24,9 @@ contract AuditLogger is BaseGuideCoinModule, IAuditLogger {
     mapping(uint256 => uint256) public dailyLogCounts; // day => count
     
     // 日志保留策略
-    uint256 public maxLogRetention = 365 days; // 最大日志保留期
-    uint256 public logArchiveThreshold = 100000; // 日志归档阈值
-    bool public autoArchiveEnabled = true;
+    uint256 public maxLogRetention; // 最大日志保留期
+    uint256 public logArchiveThreshold; // 日志归档阈值
+    bool public autoArchiveEnabled;
 
     // 关键操作监控
     mapping(string => bool) public criticalOperations;
@@ -49,9 +49,14 @@ contract AuditLogger is BaseGuideCoinModule, IAuditLogger {
     event LogRetentionUpdated(uint256 oldRetention, uint256 newRetention);
 
     // ============ 初始化函数 ============
-    function initialize(address _guideCoinContract, address admin) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+    function initialize(address _patentCoinContract, address admin) public initializer {
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
         lastAuditTimestamp = block.timestamp;
+        
+        // 初始化日志保留策略
+        maxLogRetention = 365 days; // 最大日志保留期
+        logArchiveThreshold = 100000; // 日志归档阈值
+        autoArchiveEnabled = true;
         
         // 初始化关键操作列表
         _addCriticalOperation("MINT");
@@ -71,7 +76,7 @@ contract AuditLogger is BaseGuideCoinModule, IAuditLogger {
         string memory operation,
         address target,
         uint256 amount
-    ) external override onlyGuideCoin {
+    ) external override onlyPatentCoin {
         bytes32 txHash = keccak256(
             abi.encodePacked(block.timestamp, operator, operation, target, amount)
         );
@@ -111,7 +116,7 @@ contract AuditLogger is BaseGuideCoinModule, IAuditLogger {
         string[] calldata operations,
         address[] calldata targets,
         uint256[] calldata amounts
-    ) external onlyGuideCoin {
+    ) external onlyPatentCoin {
         require(roles.length == operators.length, "AuditLogger: arrays length mismatch");
         require(roles.length == operations.length, "AuditLogger: arrays length mismatch");
         require(roles.length == targets.length, "AuditLogger: arrays length mismatch");

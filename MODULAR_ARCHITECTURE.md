@@ -1,8 +1,8 @@
-# GuideCoin 模块化架构重构
+# PatentCoin 模块化架构重构
 
 ## 概述
 
-本项目成功将原始的单体 `GuideCoin.sol` 合约重构为模块化架构，提高了代码的可维护性、可扩展性和安全性。
+本项目成功将原始的单体 `PatentCoin.sol` 合约重构为模块化架构，提高了代码的可维护性、可扩展性和安全性。
 
 ## 架构设计
 
@@ -16,11 +16,11 @@
 
 ```
 contracts/
-├── GuideCoinModular.sol          # 主合约，集成所有模块
+├── PatentCoinModular.sol          # 主合约，集成所有模块
 ├── interfaces/
-│   └── IGuideCoinModules.sol     # 模块接口定义
+│   └── IPatentCoinModules.sol     # 模块接口定义
 ├── abstract/
-│   └── BaseGuideCoinModule.sol   # 模块基础抽象合约
+│   └── BasePatentCoinModule.sol   # 模块基础抽象合约
 ├── modules/                      # 功能模块
 │   ├── RoleManager.sol           # 角色管理模块
 │   ├── ComplianceManager.sol     # 合规控制模块
@@ -35,7 +35,7 @@ contracts/
 
 ## 模块详细说明
 
-### 1. 主合约 (GuideCoinModular.sol)
+### 1. 主合约 (PatentCoinModular.sol)
 - **功能**: 集成所有模块，提供统一的用户接口
 - **特点**: 
   - 保持与原合约的接口兼容性
@@ -122,12 +122,12 @@ npx hardhat compile
 
 ### 2. 运行测试
 ```bash
-npx hardhat test test/GuideCoinModular.test.js
+npx hardhat test test/PatentCoinModular.test.js
 ```
 
 ### 3. 部署系统
 ```bash
-npx hardhat run scripts/deploy-modular-guidecoin.js --network <network>
+npx hardhat run scripts/deploy-modular-patentcoin.js --network <network>
 ```
 
 ### 4. 使用部署助手
@@ -173,7 +173,7 @@ DeploymentHelper.DeployedContracts memory contracts = helper.deployCompleteSyste
 
 ## 总结
 
-通过模块化重构，GuideCoin系统实现了：
+通过模块化重构，PatentCoin系统实现了：
 - ✅ 代码结构清晰，易于维护
 - ✅ 功能模块独立，支持热插拔
 - ✅ 权限控制严格，安全性提升

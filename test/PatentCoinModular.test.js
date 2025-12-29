@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("GuideCoinModular - Basic Compilation Test", function () {
+describe("PatentCoinModular - Basic Compilation Test", function () {
   let admin, minter, treasury;
 
   beforeEach(async function () {
@@ -10,7 +10,7 @@ describe("GuideCoinModular - Basic Compilation Test", function () {
 
   describe("Contract Compilation", function () {
     it("Should be able to get contract factories", async function () {
-      const GuideCoinModular = await ethers.getContractFactory("GuideCoinModular");
+      const PatentCoinModular = await ethers.getContractFactory("PatentCoinModular");
       const RoleManager = await ethers.getContractFactory("RoleManager");
       const ComplianceManager = await ethers.getContractFactory("ComplianceManager");
       const PatentAssetManager = await ethers.getContractFactory("PatentAssetManager");
@@ -19,7 +19,7 @@ describe("GuideCoinModular - Basic Compilation Test", function () {
       const RedemptionManager = await ethers.getContractFactory("RedemptionManager");
       const AuditLogger = await ethers.getContractFactory("AuditLogger");
 
-      expect(GuideCoinModular).to.not.be.undefined;
+      expect(PatentCoinModular).to.not.be.undefined;
       expect(RoleManager).to.not.be.undefined;
       expect(ComplianceManager).to.not.be.undefined;
       expect(PatentAssetManager).to.not.be.undefined;
@@ -30,9 +30,9 @@ describe("GuideCoinModular - Basic Compilation Test", function () {
     });
 
     it("Should have correct contract bytecode", async function () {
-      const GuideCoinModular = await ethers.getContractFactory("GuideCoinModular");
-      expect(GuideCoinModular.bytecode).to.not.be.empty;
-      expect(GuideCoinModular.bytecode.length).to.be.greaterThan(2); // More than just "0x"
+      const PatentCoinModular = await ethers.getContractFactory("PatentCoinModular");
+      expect(PatentCoinModular.bytecode).to.not.be.empty;
+      expect(PatentCoinModular.bytecode.length).to.be.greaterThan(2); // More than just "0x"
     });
   });
 
@@ -42,7 +42,7 @@ describe("GuideCoinModular - Basic Compilation Test", function () {
       const fs = require('fs');
       const path = require('path');
 
-      const interfacePath = path.join(__dirname, '../artifacts/contracts/interfaces/IGuideCoinModules.sol');
+      const interfacePath = path.join(__dirname, '../artifacts/contracts/interfaces/IPatentCoinModules.sol');
       expect(fs.existsSync(interfacePath)).to.be.true;
     });
   });

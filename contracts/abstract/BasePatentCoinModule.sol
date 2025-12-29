@@ -6,10 +6,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
 /**
- * @title BaseGuideCoinModule
- * @dev GuideCoin模块的基础抽象合约，提供通用功能和安全机制
+ * @title BasePatentCoinModule
+ * @dev PatentCoin模块的基础抽象合约，提供通用功能和安全机制
  */
-abstract contract BaseGuideCoinModule is
+abstract contract BasePatentCoinModule is
     Initializable,
     AccessControlEnumerableUpgradeable,
     ReentrancyGuardUpgradeable
@@ -33,21 +33,21 @@ abstract contract BaseGuideCoinModule is
         keccak256("REDEMPTION_PROCESSOR_ROLE");
 
     // ============ 状态变量 ============
-    address public guideCoinContract;
+    address public patentCoinContract;
     mapping(address => bool) public authorizedMultisigs;
 
     // ============ 事件 ============
-    event GuideCoinContractUpdated(
+    event PatentCoinContractUpdated(
         address indexed oldContract,
         address indexed newContract
     );
     event MultisigAuthorized(address indexed multisig, bool authorized);
 
     // ============ 修饰符 ============
-    modifier onlyGuideCoin() {
+    modifier onlyPatentCoin() {
         require(
-            msg.sender == guideCoinContract,
-            "BaseModule: caller is not GuideCoin contract"
+            msg.sender == patentCoinContract,
+            "BaseModule: caller is not PatentCoin contract"
         );
         _;
     }
@@ -73,42 +73,42 @@ abstract contract BaseGuideCoinModule is
     }
 
     // ============ 初始化函数 ============
-    function __BaseGuideCoinModule_init(
-        address _guideCoinContract,
+    function __BasePatentCoinModule_init(
+        address _patentCoinContract,
         address admin
     ) internal onlyInitializing {
         __AccessControlEnumerable_init();
         __ReentrancyGuard_init();
 
         require(
-            _guideCoinContract != address(0),
-            "BaseModule: GuideCoin contract cannot be zero address"
+            _patentCoinContract != address(0),
+            "BaseModule: PatentCoin contract cannot be zero address"
         );
         require(
             admin != address(0),
             "BaseModule: admin cannot be zero address"
         );
 
-        guideCoinContract = _guideCoinContract;
+        patentCoinContract = _patentCoinContract;
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }
 
     // ============ 管理函数 ============
     /**
-     * @dev 更新GuideCoin合约地址（仅管理员）
+     * @dev 更新PatentCoin合约地址（仅管理员）
      */
-    function setGuideCoinContract(
-        address _guideCoinContract
+    function setPatentCoinContract(
+        address _patentCoinContract
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
-            _guideCoinContract != address(0),
-            "BaseModule: GuideCoin contract cannot be zero address"
+            _patentCoinContract != address(0),
+            "BaseModule: PatentCoin contract cannot be zero address"
         );
 
-        address oldContract = guideCoinContract;
-        guideCoinContract = _guideCoinContract;
+        address oldContract = patentCoinContract;
+        patentCoinContract = _patentCoinContract;
 
-        emit GuideCoinContractUpdated(oldContract, _guideCoinContract);
+        emit PatentCoinContractUpdated(oldContract, _patentCoinContract);
     }
 
     /**

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "../abstract/BaseGuideCoinModule.sol";
-import "../interfaces/IGuideCoinModules.sol";
+import "../abstract/BasePatentCoinModule.sol";
+import "../interfaces/IPatentCoinModules.sol";
 
 /**
  * @title RoleManager
- * @dev 管理GuideCoin的角色分配和多签钱包授权
+ * @dev 管理PatentCoin的角色分配和多签钱包授权
  */
-contract RoleManager is BaseGuideCoinModule, IRoleManager {
+contract RoleManager is BasePatentCoinModule, IRoleManager {
     // ============ 状态变量 ============
     mapping(bytes32 => address) public roleMultisigWallets;
 
@@ -25,7 +25,7 @@ contract RoleManager is BaseGuideCoinModule, IRoleManager {
 
     // ============ 初始化函数 ============
     function initialize(
-        address _guideCoinContract,
+        address _patentCoinContract,
         address admin,
         address minterMultisig,
         address burnerMultisig,
@@ -40,7 +40,7 @@ contract RoleManager is BaseGuideCoinModule, IRoleManager {
         address reserveManagerMultisig,
         address redemptionProcessorMultisig
     ) public initializer {
-        __BaseGuideCoinModule_init(_guideCoinContract, admin);
+        __BasePatentCoinModule_init(_patentCoinContract, admin);
 
         // 分配角色给多签钱包
         _assignRoleToMultisig(MINTER_ROLE, minterMultisig, admin);
@@ -122,7 +122,7 @@ contract RoleManager is BaseGuideCoinModule, IRoleManager {
      */
     function isAuthorizedMultisig(
         address wallet
-    ) external view override(BaseGuideCoinModule, IRoleManager) returns (bool) {
+    ) external view override(BasePatentCoinModule, IRoleManager) returns (bool) {
         return authorizedMultisigs[wallet];
     }
 
@@ -246,15 +246,25 @@ contract RoleManager is BaseGuideCoinModule, IRoleManager {
      * @dev 检查并发出角色冲突事件
      */
     function _checkAndEmitRoleConflicts(address account) internal {
-        (bool hasConflict, bytes32[] memory conflictingRoles) = this
-            .checkRoleConflicts(account);
-        if (hasConflict) {
-            for (uint256 i = 0; i < conflictingRoles.length; i += 2) {
+        // 在初始化阶段跳过外部调用，直接内联实现冲突检测
+        bytes32[] memory highRiskRoles = new bytes32[](4);
+        highRiskRoles[0] = MINTER_ROLE;
+        highRiskRoles[1] = BURNER_ROLE;
+        highRiskRoles[2] = UPGRADER_ROLE;
+        highRiskRoles[3] = DEFAULT_ADMIN_ROLE;
+
+        for (uint256 i = 0; i < highRiskRoles.length; i++) {
+            for (uint256 j = i + 1; j < highRiskRoles.length; j++) {
+                if (
+                    hasRole(highRiskRoles[i], account) &&
+                    hasRole(highRiskRoles[j], account)
+                ) {
                 emit RoleConflictDetected(
                     account,
-                    conflictingRoles[i],
-                    conflictingRoles[i + 1]
+                        highRiskRoles[i],
+                        highRiskRoles[j]
                 );
+                }
             }
         }
     }

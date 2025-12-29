@@ -1,45 +1,57 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { WagmiConfig, createConfig, configureChains, mainnet } from 'wagmi';
-import { publicProvider } from 'wagmi/providers/public';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { WalletConnectConnector } from 'wagmi/connectors/walletConnect';
+import { WagmiProvider, createConfig } from 'wagmi';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import UserDashboard from './components/user/UserDashboard';
+import AdminDashboard from './components/admin/AdminDashboard';
+import { http } from 'viem';
+import { sepolia } from 'wagmi/chains';
+import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
+import { Toaster } from 'react-hot-toast'; 
+const rpcUrl = "https://sepolia.infura.io/v3/cf8ac5c33c5e4e30a82b9859de4ab411";
 
-import Dashboard from './components/Dashboard';
-import PatentDetails from './components/PatentDetails';
-import Governance from './components/Governance';
-import Revenue from './components/Revenue';
+export const config = createConfig(
+  getDefaultConfig({
+    // 必需的配置
+    appName: 'PatentCoin',
+    appDescription: '专利资产代币化平台',
+    appUrl: 'https://patentcoin.com',
+    appIcon: 'https://patentcoin.com/logo.png',
+    walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'placeholder-project-id',
+    
+    // 链配置
+    chains: [sepolia],
+  })
+);
 
-const { chains, publicClient } = configureChains([mainnet], [publicProvider()]);
-
-const config = createConfig({
-  autoConnect: true,
-  connectors: [
-    new MetaMaskConnector({ chains }),
-    new WalletConnectConnector({
-      chains,
-      options: {
-        projectId: process.env.REACT_APP_WALLETCONNECT_PROJECT_ID || '',
-      },
-    }),
-  ],
-  publicClient,
-});
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <WagmiConfig config={config}>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/patent/:id" element={<PatentDetails />} />
-            <Route path="/governance" element={<Governance />} />
-            <Route path="/revenue" element={<Revenue />} />
-          </Routes>
-        </div>
-      </Router>
-    </WagmiConfig>
+    <WagmiProvider config={config}>
+      <QueryClientProvider client={queryClient}>
+        <ConnectKitProvider 
+          mode="auto"
+          options={{
+            hideNoWalletCTA: false,
+            hideQuestionMarkCTA: false,
+            hideTooltips: false,
+          }}
+        >
+          <Router>
+            <Toaster />
+            <div className="min-h-screen">
+              <Routes>
+                {/* 用户端路由 */}
+                <Route path="/" element={<UserDashboard />} />
+                {/* 管理端路由 */}
+                <Route path="/admin" element={<AdminDashboard />} />
+             
+              </Routes>   
+            </div>
+          </Router>
+        </ConnectKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 }
 
