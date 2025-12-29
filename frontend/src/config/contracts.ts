@@ -1,7 +1,7 @@
-import patentCoinAbiJson from '../../../artifacts/contracts/PatentCoinModular.sol/PatentCoinModular.json';
-import patentAssetManagerAbiJson from '../../../artifacts/contracts/modules/PatentAssetManager.sol/PatentAssetManager.json';
-import revenueDistributorAbiJson from '../../../artifacts/contracts/modules/RevenueDistributor.sol/RevenueDistributor.json';
-import reserveAssetManagerAbiJson from '../../../artifacts/contracts/modules/ReserveAssetManager.sol/ReserveAssetManager.json';
+import patentCoinAbiJson from '../abi/PatentCoinModular.json';
+import patentAssetManagerAbiJson from '../abi/PatentAssetManager.json';
+import revenueDistributorAbiJson from '../abi/RevenueDistributor.json';
+import reserveAssetManagerAbiJson from '../abi/ReserveAssetManager.json';
 
 export const PATENT_COIN_ABI = patentCoinAbiJson.abi;
 export const PATENT_ASSET_MANAGER_ABI = patentAssetManagerAbiJson.abi;
