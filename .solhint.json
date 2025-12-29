@@ -1,0 +1,23 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "avoid-sha3": "warn",
+    "avoid-suicide": "error",
+    "avoid-throw": "error",
+    "avoid-tx-origin": "warn",
+    "check-send-result": "warn",
+    "compiler-version": ["error", "^0.8.0"],
+    "func-name-mixedcase": "warn",
+    "func-param-name-mixedcase": "warn",
+    "modifier-name-mixedcase": "warn",
+    "no-console": "off",
+    "no-empty-blocks": "warn",
+    "no-inline-assembly": "warn",
+    "no-unused-vars": "warn",
+    "payable-fallback": "warn",
+    "reason-string": "warn",
+    "state-visibility": "warn",
+    "var-name-mixedcase": "warn"
+  }
+}
+
