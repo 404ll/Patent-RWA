@@ -77,7 +77,7 @@ const AdminDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <WalletHeader 
-          title="PatentCoin 管理后台" 
+          title="基于专利的 RWA 系统管理后台" 
           subtitle="Administrator Panel"
           showUserLink={true}
         />
@@ -110,7 +110,7 @@ const AdminDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       {/* Header */}
       <WalletHeader 
-        title="PatentCoin 管理后台" 
+        title="基于专利的 RWA 系统管理后台" 
         subtitle="Administrator Panel"
         showUserLink={true}
       />

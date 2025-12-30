@@ -68,16 +68,16 @@ const UserDashboard: React.FC = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <WalletHeader 
-          title="PatentCoin 专利资产平台" 
+          title="基于专利的 RWA 系统" 
           subtitle="基于以太坊的专利真实世界资产(RWA)代币化平台"
         />
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
           <div className="text-center max-w-md mx-auto px-4">
             <h1 className="text-3xl font-bold text-white mb-2">
-              PatentCoin 专利资产平台
+              基于专利的 RWA 系统
             </h1>
             <p className="text-blue-300 mb-8">
-              连接钱包开始投资专利代币化资产
+              连接钱包以开始
             </p>
 
             {/* <div className="bg-white/5 border border-blue-500/30 rounded-2xl px-6 py-6 shadow-2xl backdrop-blur-md space-y-4">
@@ -109,8 +109,7 @@ const UserDashboard: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
       <WalletHeader 
-        title="PatentCoin" 
-        subtitle="专利资产投资平台"
+        title="基于专利的 RWA 系统" 
         showUserLink={true}
         userLinkText="管理端"
         userLinkPath="/admin"
