@@ -11,6 +11,8 @@ const ContractControl: React.FC = () => {
     functionName: 'paused',
   });
 
+  const isPaused = paused === true;
+
   const { writeContract, data: txHash, isPending, error: txError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
@@ -40,34 +42,35 @@ const ContractControl: React.FC = () => {
       address: PATENT_COIN_ADDRESS as `0x${string}`,
       abi: PATENT_COIN_ABI,
       functionName: 'unpause',
-    });
+      gas: BigInt(200000),
+    } as any);
   };
 
   return (
     <div className="space-y-6">
       {/* 合约状态概览 */}
       <div className={`rounded-2xl p-6 border ${
-        paused 
+        isPaused 
           ? 'bg-gradient-to-r from-red-600/20 to-pink-600/20 border-red-500/30' 
           : 'bg-gradient-to-r from-green-600/20 to-emerald-600/20 border-green-500/30'
       }`}>
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-lg font-semibold text-white">合约状态控制</h3>
-            <p className={`text-sm mt-1 ${paused ? 'text-red-300' : 'text-green-300'}`}>
-              {paused 
+            <p className={`text-sm mt-1 ${isPaused ? 'text-red-300' : 'text-green-300'}`}>
+              {isPaused 
                 ? '合约当前已暂停，所有代币操作被禁止' 
                 : '合约当前正常运行，所有功能可用'}
             </p>
           </div>
           <div className="text-right">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl ${
-              paused ? 'bg-red-500/30' : 'bg-green-500/30'
+              isPaused ? 'bg-red-500/30' : 'bg-green-500/30'
             }`}>
-              {paused ? '⏸️' : '▶️'}
+              {isPaused ? '⏸️' : '▶️'}
             </div>
-            <p className={`text-xs mt-2 font-semibold ${paused ? 'text-red-400' : 'text-green-400'}`}>
-              {paused ? '已暂停' : '运行中'}
+            <p className={`text-xs mt-2 font-semibold ${isPaused ? 'text-red-400' : 'text-green-400'}`}>
+              {isPaused ? '已暂停' : '运行中'}
             </p>
           </div>
         </div>
@@ -79,15 +82,15 @@ const ContractControl: React.FC = () => {
         <div className="space-y-4">
           <div className="p-4 bg-black/20 rounded-xl border border-purple-500/20">
             <p className="text-purple-300 text-sm mb-2">当前状态</p>
-            <p className={`text-xl font-semibold ${paused ? 'text-red-400' : 'text-green-400'}`}>
-              {paused ? '⏸️ 合约已暂停' : '▶️ 合约运行中'}
+            <p className={`text-xl font-semibold ${isPaused ? 'text-red-400' : 'text-green-400'}`}>
+              {isPaused ? '⏸️ 合约已暂停' : '▶️ 合约运行中'}
             </p>
           </div>
           
           <div className="flex space-x-4">
             <button
               onClick={handlePause}
-              disabled={paused || isPending || isConfirming}
+              disabled={isPaused || isPending || isConfirming}
               className="flex-1 px-6 py-4 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-xl font-medium hover:from-red-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
             >
               {isPending || isConfirming ? (
@@ -107,7 +110,7 @@ const ContractControl: React.FC = () => {
             </button>
             <button
               onClick={handleUnpause}
-              disabled={!paused || isPending || isConfirming}
+              disabled={!isPaused || isPending || isConfirming}
               className="flex-1 px-6 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
             >
               {isPending || isConfirming ? (
