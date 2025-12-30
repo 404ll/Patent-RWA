@@ -107,7 +107,6 @@ export function useAllPatents(patentNumbers?: string[]) {
       // PatentAssetManager.getPatent 返回的结构体：
       // { patentNumber, title, inventors[], valuationUSD, weight, active, addedTimestamp, ipfsMetadata }
       const patent = res.result as any;
-      console.log(`专利 ${idx} 数据:`, patent);
       
       // 检查专利是否存在（不检查 active 状态，因为停用的专利也应该显示）
       // 如果专利不存在，patentNumber 会是空字符串
@@ -115,11 +114,6 @@ export function useAllPatents(patentNumbers?: string[]) {
       const isValidPatent = 
         patent.patentNumber && 
         patent.patentNumber.length > 0;
-      
-      console.log(`专利 ${idx} 有效性:`, isValidPatent, {
-        patentNumber: patent.patentNumber,
-        active: patent.active
-      });
       
       if (!isValidPatent) {
         // 专利不存在（patentNumber 为空），跳过（不打印警告，这是正常情况）
@@ -144,7 +138,6 @@ export function useAllPatents(patentNumbers?: string[]) {
     });
     
     const filtered = mapped.filter((patent): patent is PatentAsset => patent !== null);
-    console.log('过滤后的专利数量:', filtered.length);
     return filtered;
   }, [data, resolvedNumbers]);
 

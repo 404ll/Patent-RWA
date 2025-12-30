@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { PATENT_COIN_ABI, PATENT_COIN_ADDRESS } from '../../config/contracts';
+import { useContractPaused } from '../../hooks/useContractPaused';
 
 
 const MintingPanel: React.FC = () => {
   const { address } = useAccount();
+  const { isPaused } = useContractPaused();
   const [mintForm, setMintForm] = useState({
     recipient: '',
     amount: ''
@@ -15,6 +17,10 @@ const MintingPanel: React.FC = () => {
     amount: string;
     time: string;
   }>>([]);
+  const [lastSuccessMint, setLastSuccessMint] = useState<{
+    recipient: string;
+    amount: string;
+  } | null>(null);
 
   const contractAddress = PATENT_COIN_ADDRESS;
 
@@ -55,6 +61,11 @@ const MintingPanel: React.FC = () => {
   // 处理成功后的状态更新
   useEffect(() => {
     if (isMintSuccess && mintForm.recipient && mintForm.amount) {
+      // 保存成功时的数据用于显示
+      setLastSuccessMint({
+        recipient: mintForm.recipient,
+        amount: mintForm.amount
+      });
       setRecentMints(prev => [{
         to: mintForm.recipient,
         amount: mintForm.amount,
@@ -132,36 +143,6 @@ const MintingPanel: React.FC = () => {
                 {dailyMintLimit ? Number(formatEther(dailyMintLimit as bigint)).toLocaleString() : '0'}
               </p>
               <p className="text-xs text-purple-400">PATENT/天</p>
-              {(() => {
-                // 计算下一次重置时间（下一个 UTC 午夜）
-                const now = new Date();
-                const utcNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));
-                const nextMidnight = new Date(utcNow);
-                nextMidnight.setUTCHours(24, 0, 0, 0); // 下一个 UTC 午夜
-                const timeUntilReset = nextMidnight.getTime() - Date.now();
-                const hoursUntilReset = Math.floor(timeUntilReset / (1000 * 60 * 60));
-                const minutesUntilReset = Math.floor((timeUntilReset % (1000 * 60 * 60)) / (1000 * 60));
-                
-                return (
-                  <>
-                    <p className="text-xs text-purple-500/70 mt-1">
-                      下次重置: {nextMidnight.toLocaleString('zh-CN', { 
-                        timeZone: 'UTC',
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                        hour12: false
-                      })} UTC
-                    </p>
-                    <p className="text-xs text-purple-500/70">
-                      ({hoursUntilReset}小时 {minutesUntilReset}分钟后)
-                    </p>
-                  </>
-                );
-              })()}
             </div>
             <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-2xl">
               ⏰
@@ -203,6 +184,8 @@ const MintingPanel: React.FC = () => {
             <label className="block text-sm font-medium text-purple-300 mb-2">铸币数量 (PATENT)</label>
             <input
               type="number"
+              step="any"
+              min="0"
               placeholder="例如: 1000"
               value={mintForm.amount}
               onChange={(e) => setMintForm({ ...mintForm, amount: e.target.value })}
@@ -232,16 +215,27 @@ const MintingPanel: React.FC = () => {
         </div>
 
         <button
-          onClick={() => mintTokens({
-            address: contractAddress,
-            abi: PATENT_COIN_ABI, 
-            functionName: 'mint',
-            args: [
-              mintForm.recipient as `0x${string}`,
-              mintForm.amount || '0'
-            ]
-          } as any)}
+          onClick={() => {
+            try {
+              // 清除上次成功状态
+              setLastSuccessMint(null);
+              const amountWei = parseEther(mintForm.amount || '0');
+              mintTokens({
+                address: contractAddress,
+                abi: PATENT_COIN_ABI, 
+                functionName: 'mint',
+                args: [
+                  mintForm.recipient as `0x${string}`,
+                  amountWei
+                ]
+              } as any);
+            } catch (error) {
+              console.error('金额格式错误:', error);
+              alert('金额格式错误，请输入有效的数字');
+            }
+          }}
           disabled={
+            isPaused ||
             isMinting ||
             isMintConfirming ||
             !mintForm.recipient ||
@@ -250,7 +244,9 @@ const MintingPanel: React.FC = () => {
           }
           className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
-          {isMinting || isMintConfirming ? (
+          {isPaused ? (
+            '⏸️ 合约已暂停'
+          ) : isMinting || isMintConfirming ? (
             <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -264,19 +260,19 @@ const MintingPanel: React.FC = () => {
         </button>
 
         {/* 成功提示 */}
-        {isMintSuccess && (
+        {isMintSuccess && lastSuccessMint && (
           <div className="mt-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl">
             <div className="flex items-start space-x-3">
               <div className="text-2xl">✅</div>
               <div className="flex-1">
                 <p className="text-green-400 font-medium mb-1">铸币成功！</p>
                 <p className="text-green-300 text-sm">
-                  成功铸造 {mintForm.amount || '0'} PATENT 到{' '}
-                  {mintForm.recipient ? `${mintForm.recipient.slice(0, 6)}...${mintForm.recipient.slice(-4)}` : '地址'}
-            </p>
+                  成功铸造 {Number(lastSuccessMint.amount).toLocaleString()} PATENT 到{' '}
+                  {lastSuccessMint.recipient ? `${lastSuccessMint.recipient.slice(0, 6)}...${lastSuccessMint.recipient.slice(-4)}` : '地址'}
+                </p>
                 {mintHash && (
                   <p className="text-green-400/70 text-xs mt-2 font-mono">
-                    交易哈希: {mintHash.slice(0, 10)}...{mintHash.slice(-8)}
+                    交易哈希: {mintHash}
                   </p>
                 )}
               </div>

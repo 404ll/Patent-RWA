@@ -3,6 +3,7 @@ import { useAccount, useReadContract, useReadContracts, useWriteContract, useWai
 import { formatEther, formatUnits, type Abi } from 'viem';
 import { PATENT_COIN_ADDRESS, PATENT_COIN_ABI, REVENUE_DISTRIBUTOR_ABI } from '../../config/contracts';
 import { RevenueInfo } from '../../types/contracts';
+import { useContractPaused } from '../../hooks/useContractPaused';
 
 type RevenueClaimProps = {
   patentBalance: bigint;
@@ -12,6 +13,7 @@ type RevenueClaimProps = {
 
 const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply, revenueInfo }) => {
   const { address } = useAccount();
+  const { isPaused } = useContractPaused();
   const [selectedRound, setSelectedRound] = useState<number | null>(null);
   const [claimingRounds, setClaimingRounds] = useState<number[]>([]);
 
@@ -116,7 +118,9 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
       const timer = setTimeout(() => {
         setClaimingRounds(prev => prev.filter(r => r !== selectedRound));
         setSelectedRound(null);
-      }, 3000); // 3秒后清除
+        // 刷新页面以更新数据
+        window.location.reload();
+      }, 3000); // 3秒后清除并刷新
       return () => clearTimeout(timer);
     }
   }, [isClaimSuccess, selectedRound]);
@@ -191,9 +195,9 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20">
           <p className="text-sm text-blue-300">可领取收益</p>
           <p className="text-2xl font-bold text-green-400 mt-1">
-            {formatUnits(totalClaimable, 18)}
+            ${Number(formatUnits(totalClaimable, 18)).toFixed(4)}
           </p>
-          <p className="text-xs text-blue-400">代币</p>
+          <p className="text-xs text-blue-400">USD</p>
         </div>
         <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-5 border border-blue-500/20">
           <p className="text-sm text-blue-300">已领取轮次</p>
@@ -247,15 +251,14 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
                         第 {round.roundId} 轮收益
                         {round.claimed && <span className="text-blue-400 text-sm ml-2">(已领取)</span>}
                       </p>
-                      <p className="text-xs text-blue-400">
-                        {new Date(Number(round.timestamp) * 1000).toLocaleString()}
-                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className={`font-semibold ${round.claimed ? 'text-white' : 'text-green-400'}`}>
-                      {formatUnits(round.claimable, 18)}
-                    </p>
+                    {!round.claimed && (
+                      <p className={`font-semibold ${round.claimed ? 'text-white' : 'text-green-400'}`}>
+                        {formatUnits(round.claimable, 18) }
+                      </p>
+                    )}
                     <p className="text-xs text-blue-400">
                       {round.claimed ? '已领取' : '可领取'}
                       </p>
@@ -300,10 +303,12 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
                     )}
                       <button
                       onClick={() => handleClaimRevenue(round.roundId)}
-                      disabled={claimingRounds.includes(round.roundId)}
+                      disabled={isPaused || claimingRounds.includes(round.roundId)}
                         className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                       >
-                      {claimingRounds.includes(round.roundId) ? (
+                      {isPaused ? (
+                        '⏸️ 合约已暂停'
+                      ) : claimingRounds.includes(round.roundId) ? (
                           <span className="flex items-center justify-center">
                             <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -347,10 +352,10 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
               <p className="text-xs text-blue-400 mt-1">总可领取金额</p>
               <button
                 onClick={handleBatchClaim}
-                disabled={claimingRounds.length > 0}
+                disabled={isPaused || claimingRounds.length > 0}
                 className="mt-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-2 rounded-xl font-medium hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                批量领取
+                {isPaused ? '⏸️ 合约已暂停' : '批量领取'}
               </button>
             </div>
           </div>

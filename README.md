@@ -231,10 +231,10 @@ npx hardhat compile
 
 # 部署到本地网络
 npx hardhat node
-npx hardhat run scripts/deploy-patentcoin.js --network localhost
+npx hardhat run scripts/deploy-modular-patentcoin.js --network localhost
 
 # 部署到测试网
-npx hardhat run scripts/deploy-patentcoin.js --network goerli
+npx hardhat run scripts/deploy-modular-patentcoin.js --network goerli
 ```
 
 ### 启动前端
@@ -349,7 +349,7 @@ function unpause() external onlyRole(RESUME_ROLE);
 
 ```
 ├── contracts/                    # 智能合约
-│   ├── PatentCoin.sol            # 主合约 - 多专利资产支撑的PATENT代币
+│   ├── PatentCoin.sol           # 主合约 - 多专利资产支撑的PATENT代币
 │   ├── TokenMetadataRegistry.sol # 元数据注册表
 │   ├── PatentVesting.sol        # 通用代币锁仓合约
 │   ├── PatentOracle.sol         # 预言机合约
@@ -359,9 +359,9 @@ function unpause() external onlyRole(RESUME_ROLE);
 │   └── mocks/                   # 测试用模拟合约
 │       └── MockERC20.sol        # 模拟ERC20代币
 ├── scripts/                     # 部署脚本
-│   └── deploy-patentcoin.js      # PatentCoin部署脚本
+│   └── deploy-modular-patentcoin.js  # PatentCoin部署脚本
 ├── test/                        # 测试文件
-│   └── PatentCoin.test.js        # 完整测试套件
+│   └── PatentCoinModular.test.js     # 完整测试套件
 ├── frontend/                    # React前端
 │   ├── src/
 │   │   ├── components/          # React组件
@@ -375,7 +375,7 @@ function unpause() external onlyRole(RESUME_ROLE);
 │   │   └── hooks/               # React Hooks
 │   └── package.json             # 前端依赖
 ├── docs/                        # 文档
-│   └── PatentCoin-Documentation.md # 详细技术文档
+│   └── GuideCoin-Documentation.md # 详细技术文档
 ├── hardhat.config.js            # Hardhat配置
 ├── package.json                 # 项目依赖
 └── README.md                    # 项目说明

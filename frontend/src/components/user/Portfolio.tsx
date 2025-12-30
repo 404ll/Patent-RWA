@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatEther } from 'viem';
+import { formatEther, formatUnits } from 'viem';
 import { PatentStats, TokenInfo } from '../../types/contracts';
 
 type PortfolioProps = {
@@ -16,10 +16,15 @@ const Portfolio: React.FC<PortfolioProps> = ({ balance, patentStats, tokenInfo, 
     ? (Number(balance) / Number(tokenInfo.totalSupply) * 100).toFixed(4)
     : '0';
 
-  // 计算用户持仓价值
-  const holdingValue = balance && patentStats.backingRatio
-    ? Number(formatEther(balance)) * Number((patentStats.backingRatio as bigint) / BigInt(1e6))
-    : 0;
+  const backing =
+  patentStats.backingRatio
+    ? Number(formatUnits(patentStats.backingRatio, 6)).toFixed(4)
+    : '0.0000'
+
+ // 计算用户持仓价值
+ const holdingValue = balance && patentStats.backingRatio
+ ? Number(formatEther(balance)) * Number(backing)
+ : 0;
 
   return (
     <div className="space-y-6">
@@ -49,7 +54,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ balance, patentStats, tokenInfo, 
         <PortfolioCard
           icon="💎"
           title="支撑比率"
-          value={`$${patentStats.backingRatio ? Number((patentStats.backingRatio as bigint) / BigInt(1e6)).toFixed(4) : '0.0000'}`}
+          value={`$${backing}`}
           subtitle="每PATENT"
           color="from-orange-500 to-amber-500"
         />
@@ -101,7 +106,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ balance, patentStats, tokenInfo, 
               <div className="flex justify-between">
                 <span className="text-blue-400">支撑比率</span>
                 <span className="text-white font-medium">
-                  ${patentStats.backingRatio ? Number((patentStats.backingRatio as bigint) / BigInt(1e6)).toFixed(4) : '0.0000'}/PATENT
+                  ${backing}/PATENT
                 </span>
               </div>
             </div>

@@ -6,6 +6,9 @@ import { ConnectKitButton } from 'connectkit';
 import PatentManagement from './PatentManagement';
 import MintingPanel from './MintingPanel';
 import RevenueDistribution from './RevenueDistribution';
+import WhitelistManagement from './WhitelistManagement';
+import BlacklistManagement from './BlacklistManagement';
+import ContractControl from './ContractControl';
 import { usePatentCoin } from '../../hooks/usePatentCoin';
 import type { PatentAsset } from '../../types/contracts';
 import WalletHeader from '../common/WalletHeader';
@@ -19,7 +22,7 @@ const AdminDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(tabFromUrl);
 
   // 管理端有效的标签页
-  const validTabs = ['overview', 'patents', 'minting', 'revenue'];
+  const validTabs = ['overview', 'patents', 'minting', 'revenue', 'whitelist', 'blacklist', 'contract'];
 
   // 检查路径和标签页有效性，清空无效的查询参数
   useEffect(() => {
@@ -64,6 +67,9 @@ const AdminDashboard: React.FC = () => {
     { id: 'patents', name: '专利管理', icon: '🔬' },
     { id: 'minting', name: '代币铸造', icon: '🪙' },
     { id: 'revenue', name: '收益分配', icon: '💰' },
+    { id: 'whitelist', name: '白名单管理', icon: '✅' },
+    { id: 'blacklist', name: '黑名单管理', icon: '🚫' },
+    { id: 'contract', name: '合约控制', icon: '⚙️' },
   ];
 
   // 未连接钱包时显示连接页面
@@ -147,6 +153,9 @@ const AdminDashboard: React.FC = () => {
         {activeTab === 'patents' && <PatentManagement />}
         {activeTab === 'minting' && <MintingPanel />}
         {activeTab === 'revenue' && <RevenueDistribution />}
+        {activeTab === 'whitelist' && <WhitelistManagement />}
+        {activeTab === 'blacklist' && <BlacklistManagement />}
+        {activeTab === 'contract' && <ContractControl />}
       </main>
     </div>
   );

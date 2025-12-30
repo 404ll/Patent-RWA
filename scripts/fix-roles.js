@@ -196,18 +196,52 @@ async function main() {
     console.log("⚠️  无法设置：需要模块管理员权限");
   }
   
-  // 在 ComplianceManager 模块中设置授权多签
+  // 在 ComplianceManager 模块中授予角色和设置授权多签
   console.log("\n=== 设置 ComplianceManager 模块 ===");
   const complianceModuleAdminRole = await complianceManager.DEFAULT_ADMIN_ROLE();
   const hasComplianceModuleAdminRole = await complianceManager.hasRole(complianceModuleAdminRole, deployer.address);
   
   if (hasComplianceModuleAdminRole) {
+    // 授予 WHITELISTER_ROLE 给 whitelisterMultisig
+    const hasWhitelisterRoleInModule = await complianceManager.hasRole(WHITELISTER_ROLE, whitelisterMultisig);
+    if (!hasWhitelisterRoleInModule) {
+      console.log("授予 WHITELISTER_ROLE 给 whitelisterMultisig...");
+      const tx1 = await complianceManager.grantRole(WHITELISTER_ROLE, whitelisterMultisig);
+      await tx1.wait();
+      console.log("✅ WHITELISTER_ROLE 已授予");
+    } else {
+      console.log("✅ WHITELISTER_ROLE 已在模块中授予");
+    }
+    
+    // 授予 BLACKLISTER_ROLE 给 blacklisterMultisig
+    const hasBlacklisterRoleInModule = await complianceManager.hasRole(BLACKLISTER_ROLE, blacklisterMultisig);
+    if (!hasBlacklisterRoleInModule) {
+      console.log("授予 BLACKLISTER_ROLE 给 blacklisterMultisig...");
+      const tx2 = await complianceManager.grantRole(BLACKLISTER_ROLE, blacklisterMultisig);
+      await tx2.wait();
+      console.log("✅ BLACKLISTER_ROLE 已授予");
+    } else {
+      console.log("✅ BLACKLISTER_ROLE 已在模块中授予");
+    }
+    
+    // 授予 FREEZER_ROLE 给 freezerMultisig
+    const hasFreezerRoleInModule = await complianceManager.hasRole(FREEZER_ROLE, freezerMultisig);
+    if (!hasFreezerRoleInModule) {
+      console.log("授予 FREEZER_ROLE 给 freezerMultisig...");
+      const tx3 = await complianceManager.grantRole(FREEZER_ROLE, freezerMultisig);
+      await tx3.wait();
+      console.log("✅ FREEZER_ROLE 已授予");
+    } else {
+      console.log("✅ FREEZER_ROLE 已在模块中授予");
+    }
+    
+    // 设置授权多签
     const multisigs = [freezerMultisig, whitelisterMultisig, blacklisterMultisig];
     const authorizations = [true, true, true];
     
     console.log("批量设置授权多签...");
-    const tx = await complianceManager.batchSetMultisigAuthorization(multisigs, authorizations);
-    await tx.wait();
+    const tx4 = await complianceManager.batchSetMultisigAuthorization(multisigs, authorizations);
+    await tx4.wait();
     console.log("✅ 授权多签已设置");
   } else {
     console.log("⚠️  无法设置：需要模块管理员权限");
@@ -274,6 +308,9 @@ async function main() {
     { name: "REVENUE_MANAGER_ROLE", role: REVENUE_MANAGER_ROLE },
     { name: "PATENT_MANAGER_ROLE", role: PATENT_MANAGER_ROLE },
     { name: "RESERVE_MANAGER_ROLE", role: RESERVE_MANAGER_ROLE },
+    { name: "WHITELISTER_ROLE", role: WHITELISTER_ROLE },
+    { name: "BLACKLISTER_ROLE", role: BLACKLISTER_ROLE },
+    { name: "FREEZER_ROLE", role: FREEZER_ROLE },
   ];
   
   for (const { name, role } of criticalRoles) {
@@ -346,6 +383,45 @@ async function main() {
       console.log("✅ 授权多签已设置");
     }
   }
+  
+  // ComplianceManager (授予角色和授权多签给部署账户)
+  if (hasComplianceModuleAdminRole) {
+    // 授予 WHITELISTER_ROLE
+    const hasWhitelisterRoleInModuleForDeployer = await complianceManager.hasRole(WHITELISTER_ROLE, deployer.address);
+    if (!hasWhitelisterRoleInModuleForDeployer) {
+      console.log("在 ComplianceManager 中授予 WHITELISTER_ROLE 给部署账户...");
+      const tx1 = await complianceManager.grantRole(WHITELISTER_ROLE, deployer.address);
+      await tx1.wait();
+      console.log("✅ WHITELISTER_ROLE 已授予");
+    }
+    
+    // 授予 BLACKLISTER_ROLE
+    const hasBlacklisterRoleInModuleForDeployer = await complianceManager.hasRole(BLACKLISTER_ROLE, deployer.address);
+    if (!hasBlacklisterRoleInModuleForDeployer) {
+      console.log("在 ComplianceManager 中授予 BLACKLISTER_ROLE 给部署账户...");
+      const tx2 = await complianceManager.grantRole(BLACKLISTER_ROLE, deployer.address);
+      await tx2.wait();
+      console.log("✅ BLACKLISTER_ROLE 已授予");
+    }
+    
+    // 授予 FREEZER_ROLE
+    const hasFreezerRoleInModuleForDeployer = await complianceManager.hasRole(FREEZER_ROLE, deployer.address);
+    if (!hasFreezerRoleInModuleForDeployer) {
+      console.log("在 ComplianceManager 中授予 FREEZER_ROLE 给部署账户...");
+      const tx3 = await complianceManager.grantRole(FREEZER_ROLE, deployer.address);
+      await tx3.wait();
+      console.log("✅ FREEZER_ROLE 已授予");
+    }
+    
+    // 授权部署账户为多签钱包
+    const isAuthorizedInComplianceModuleForDeployer = await complianceManager.isAuthorizedMultisig(deployer.address);
+    if (!isAuthorizedInComplianceModuleForDeployer) {
+      console.log("在 ComplianceManager 中授权部署账户为多签钱包...");
+      const tx4 = await complianceManager.setMultisigAuthorization(deployer.address, true);
+      await tx4.wait();
+      console.log("✅ 授权多签已设置");
+    }
+  }
 
   console.log("\n=== 验证 ===");
   const deployerHasMinterRole = await patentCoin.hasRole(MINTER_ROLE, deployer.address);
@@ -366,11 +442,18 @@ async function main() {
   const deployerHasReserveManagerRole = await reserveAssetManager.hasRole(RESERVE_MANAGER_ROLE, deployer.address);
   const deployerIsAuthorizedInReserveModule = await reserveAssetManager.isAuthorizedMultisig(deployer.address);
   
+  // ComplianceManager 权限验证
+  const deployerHasWhitelisterRole = await complianceManager.hasRole(WHITELISTER_ROLE, deployer.address);
+  const deployerHasBlacklisterRole = await complianceManager.hasRole(BLACKLISTER_ROLE, deployer.address);
+  const deployerHasFreezerRole = await complianceManager.hasRole(FREEZER_ROLE, deployer.address);
+  const deployerIsAuthorizedInComplianceModule = await complianceManager.isAuthorizedMultisig(deployer.address);
+  
   console.log("\n授权多签状态:");
   console.log("  RoleManager:", deployerIsAuthorizedInRoleManager);
   console.log("  PatentAssetManager:", deployerIsAuthorizedInPatentModule);
   console.log("  RevenueDistributor:", deployerIsAuthorizedInRevenueModule);
   console.log("  ReserveAssetManager:", deployerIsAuthorizedInReserveModule);
+  console.log("  ComplianceManager:", deployerIsAuthorizedInComplianceModule);
   
   if (deployerHasMinterRole && deployerIsAuthorizedInRoleManager) {
     console.log("\n✅ 部署账户现在可以铸造代币了！");
@@ -402,6 +485,30 @@ async function main() {
     console.log("⚠️  部署账户仍无法管理储备资产");
     if (!deployerHasReserveManagerRole) console.log("  原因：没有 RESERVE_MANAGER_ROLE");
     if (!deployerIsAuthorizedInReserveModule) console.log("  原因：在模块中不是授权多签");
+  }
+  
+  if (deployerHasWhitelisterRole && deployerIsAuthorizedInComplianceModule) {
+    console.log("✅ 部署账户现在可以管理白名单了！");
+  } else {
+    console.log("⚠️  部署账户仍无法管理白名单");
+    if (!deployerHasWhitelisterRole) console.log("  原因：没有 WHITELISTER_ROLE");
+    if (!deployerIsAuthorizedInComplianceModule) console.log("  原因：在模块中不是授权多签");
+  }
+  
+  if (deployerHasBlacklisterRole && deployerIsAuthorizedInComplianceModule) {
+    console.log("✅ 部署账户现在可以管理黑名单了！");
+  } else {
+    console.log("⚠️  部署账户仍无法管理黑名单");
+    if (!deployerHasBlacklisterRole) console.log("  原因：没有 BLACKLISTER_ROLE");
+    if (!deployerIsAuthorizedInComplianceModule) console.log("  原因：在模块中不是授权多签");
+  }
+  
+  if (deployerHasFreezerRole && deployerIsAuthorizedInComplianceModule) {
+    console.log("✅ 部署账户现在可以冻结地址了！");
+  } else {
+    console.log("⚠️  部署账户仍无法冻结地址");
+    if (!deployerHasFreezerRole) console.log("  原因：没有 FREEZER_ROLE");
+    if (!deployerIsAuthorizedInComplianceModule) console.log("  原因：在模块中不是授权多签");
   }
 }
 

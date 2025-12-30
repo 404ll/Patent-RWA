@@ -2,18 +2,19 @@ import patentCoinAbiJson from '../abi/PatentCoinModular.json';
 import patentAssetManagerAbiJson from '../abi/PatentAssetManager.json';
 import revenueDistributorAbiJson from '../abi/RevenueDistributor.json';
 import reserveAssetManagerAbiJson from '../abi/ReserveAssetManager.json';
-
+import complianceManagerAbiJson from '../abi/ComplianceManager.json';
 export const PATENT_COIN_ABI = patentCoinAbiJson.abi;
 export const PATENT_ASSET_MANAGER_ABI = patentAssetManagerAbiJson.abi;
 export const REVENUE_DISTRIBUTOR_ABI = revenueDistributorAbiJson.abi;
 export const RESERVE_ASSET_MANAGER_ABI = reserveAssetManagerAbiJson.abi;
-
+export const COMPLIANCE_MANAGER_ABI = complianceManagerAbiJson.abi;
 // 合约地址配置
 export const CONTRACT_ADDRESSES = {
   // Sepolia 测试网
   sepolia: {
     PatentCoin: "0xA29057f94EAEda93020664032D4a5A2da2DDa488",
-    PatentAssetManager: "0x8BDe84b49f208fA1A0D7506ECd0b3A2Dcb4aD9d2", // 从部署日志获取的实际地址
+    PatentAssetManager: "0x8BDe84b49f208fA1A0D7506ECd0b3A2Dcb4aD9d2",
+    ComplianceManager: "0x0Cd1530d6Cc14252392C1816aC7490f116949c2E",
   }
 } as const;
 

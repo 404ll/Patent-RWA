@@ -3,6 +3,7 @@ import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAcc
 import { parseUnits, formatUnits, formatEther } from 'viem';
 import type { Abi } from 'viem';
 import { PATENT_COIN_ADDRESS, PATENT_COIN_ABI, REVENUE_DISTRIBUTOR_ABI } from '../../config/contracts';
+import { useContractPaused } from '../../hooks/useContractPaused';
 
 // 常用代币地址
 // const TOKEN_OPTIONS = [
@@ -15,6 +16,7 @@ const MOCK_TOKEN_OPTIONS = [
   
 ];
 const RevenueDistribution: React.FC = () => {
+  const { isPaused } = useContractPaused();
   const [distributeForm, setDistributeForm] = useState({
     amount: '',
     tokenAddress: '',
@@ -268,6 +270,7 @@ const RevenueDistribution: React.FC = () => {
             } as any);
           }}
           disabled={
+            isPaused ||
             isDistributing ||
             isDistributeConfirming ||
             !distributeForm.amount ||
@@ -278,7 +281,9 @@ const RevenueDistribution: React.FC = () => {
           }
           className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
-          {isDistributing || isDistributeConfirming ? (
+          {isPaused ? (
+            '⏸️ 合约已暂停'
+          ) : isDistributing || isDistributeConfirming ? (
             <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

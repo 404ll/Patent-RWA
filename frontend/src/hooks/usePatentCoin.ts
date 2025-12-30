@@ -132,7 +132,7 @@ export function usePatentCoin(): PatentCoinResult {
     abi: PATENT_COIN_ABI,
     functionName: 'getBackingRatio',
   });
-
+console.log('支撑比率:', backingRatio);
 
   const { patents: patentInfo, isLoading: isLoadingPatents, error: patentsError } = useAllPatents(patentNumbersList);
   

@@ -2,14 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { formatEther } from 'viem';
+import { formatEther, formatUnits } from 'viem';
 import TokenPurchase from './TokenPurchase';
 import TokenRedemption from './TokenRedemption';
+import TokenTransfer from './TokenTransfer';
 import RevenueClaim from './RevenueClaim';
 import Portfolio from './Portfolio';
-import { ConnectKitButton } from 'connectkit';
 import { usePatentCoin } from '../../hooks/usePatentCoin';
-import { usePatentInfo } from '../../hooks/usePatent';
 import WalletHeader from '../common/WalletHeader';
 
 const UserDashboard: React.FC = () => {
@@ -21,7 +20,7 @@ const UserDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState(tabFromUrl);
 
   // 用户端有效的标签页
-  const validTabs = ['portfolio', 'purchase', 'redemption', 'revenue'];
+  const validTabs = ['portfolio', 'purchase', 'transfer', 'redemption', 'revenue'];
 
   // 检查路径和标签页有效性，清空无效的查询参数
   useEffect(() => {
@@ -54,9 +53,16 @@ const UserDashboard: React.FC = () => {
   const tabs = [
     { id: 'portfolio', name: '我的持仓', icon: '💼' },
     { id: 'purchase', name: '购买代币', icon: '🛒' },
-    { id: 'redemption', name: '赎回代币', icon: '💱' },
+    // { id: 'redemption', name: '赎回代币', icon: '💱' },
+    {id: "transfer", name: "转账", icon: "💳"},
     { id: 'revenue', name: '领取收益', icon: '💰' },
   ];
+
+  const backing =
+  patentStats.backingRatio
+    ? Number(formatUnits(patentStats.backingRatio, 6)).toFixed(4)
+    : '0.0000'
+
   // 未连接钱包时显示连接页面
   if (!isConnected) {
     return (
@@ -119,7 +125,7 @@ const UserDashboard: React.FC = () => {
                 <span className="text-blue-400">💎</span>
                 <span className="text-blue-300">支撑比率:</span>
                 <span className="text-white font-medium">
-                  ${patentStats.backingRatio ? Number((patentStats.backingRatio as bigint) / BigInt(1e6)).toFixed(4) : '0.0000'} / PATENT
+                  ${backing} / PATENT
                 </span>
               </div>
               <div className="flex items-center space-x-2">
@@ -160,7 +166,8 @@ const UserDashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {activeTab === 'portfolio' && <Portfolio balance={balance} patentStats={patentStats} tokenInfo={tokenInfo} onTabChange={handleTabChange} />}
         {activeTab === 'purchase' && <TokenPurchase />}
-        {activeTab === 'redemption' && <TokenRedemption />}
+        {activeTab === 'transfer' && <TokenTransfer />}
+        {/* {activeTab === 'redemption' && <TokenRedemption />} */}
         {activeTab === 'revenue' && <RevenueClaim patentBalance={balance} totalSupply={tokenInfo.totalSupply} revenueInfo={revenueInfo} />}
       </main>
     </div>

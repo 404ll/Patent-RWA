@@ -4,6 +4,7 @@ import { parseEther, formatEther } from 'viem';
 import { PATENT_COIN_ADDRESS } from '../../config/contracts';
 import { PATENT_COIN_ABI } from '../../config/contracts';
 import { usePatentCoin } from '../../hooks/usePatentCoin';
+import { useContractPaused } from '../../hooks/useContractPaused';
 // 赎回资产选项
 const REDEMPTION_ASSETS = [
   { symbol: 'USDC', address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', icon: '💵' },
@@ -14,6 +15,7 @@ const REDEMPTION_ASSETS = [
 const TokenRedemption: React.FC = () => {
   const [redeemAmount, setRedeemAmount] = useState('');
   const [selectedAsset, setSelectedAsset] = useState(REDEMPTION_ASSETS[0].address);
+  const { isPaused } = useContractPaused();
 
   const contractAddress = PATENT_COIN_ADDRESS;
 
@@ -43,7 +45,7 @@ const TokenRedemption: React.FC = () => {
   }, [isRedeemSuccess]);
 
   const balance = patentBalance ? Number(formatEther(patentBalance as bigint)) : 0;
-  const ratio = patentStats.backingRatio ? Number((patentStats.backingRatio as bigint) / BigInt(1e6)) : 1;
+  const ratio = patentStats.backingRatio ? Number((patentStats.backingRatio as bigint) / BigInt(1e18)) : 1;
   const redeemValue = redeemAmount ? parseFloat(redeemAmount) * ratio : 0;
   const selectedAssetInfo = REDEMPTION_ASSETS.find(a => a.address === selectedAsset);
 
@@ -204,6 +206,7 @@ const TokenRedemption: React.FC = () => {
             ]
           } as any)}
           disabled={
+            isPaused ||
             isRedeeming ||
             isRedeemConfirming ||
             !redeemAmount ||
@@ -212,7 +215,9 @@ const TokenRedemption: React.FC = () => {
           }
           className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-4 rounded-xl font-medium hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-lg"
         >
-          {isRedeeming || isRedeemConfirming ? (
+          {isPaused ? (
+            '⏸️ 合约已暂停'
+          ) : isRedeeming || isRedeemConfirming ? (
             <span className="flex items-center justify-center">
               <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

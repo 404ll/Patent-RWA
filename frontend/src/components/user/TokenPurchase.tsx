@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { formatEther, parseEther } from 'viem';
+import { formatEther, formatUnits, parseEther } from 'viem';
 import { PATENT_COIN_ADDRESS, PATENT_COIN_ABI, PATENT_COIN_PURCHASE_ADDRESS } from '../../config/contracts';
 import { usePatentCoin } from '../../hooks/usePatentCoin';
 import { useEthPrice } from '../../hooks/useEthPrice';
+import { useContractPaused } from '../../hooks/useContractPaused';
 
 const TokenPurchase: React.FC = () => {
   const { address } = useAccount();
@@ -23,7 +24,11 @@ const TokenPurchase: React.FC = () => {
 
   // 计算 PATENT 价格 (1PATENT = 支撑比率 USD)
   // 如果 PATENT 和 USDC 是 1:1，那么 patentPrice 应该是 1
-  const patentPrice = patentStats.backingRatio ? Number((patentStats.backingRatio as bigint) / BigInt(1e6)) : 1;
+  const backing =
+  patentStats.backingRatio
+    ? Number(formatUnits(patentStats.backingRatio, 6)).toFixed(4)
+    : '0.0000'
+  const patentPrice = backing ? Number(backing) : 1;
   // 使用预言机价格，如果不可用则使用默认值
   const ethPriceValue = ethPrice || 2500; // 如果预言机不可用，使用默认值
 
@@ -176,188 +181,6 @@ const TokenPurchase: React.FC = () => {
         </div>
       </div>
 
-      {/* 购买表单 */}
-      <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/20">
-        <h3 className="text-lg font-semibold text-white mb-4">输入购买 PATENT 数量</h3>
-
-        {/* 支付方式选择 */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-blue-300 mb-2">选择支付方式</label>
-          <div className="grid grid-cols-3 gap-3">
-            {paymentOptions.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => setSelectedPayment(option.id)}
-                className={`p-3 rounded-xl border transition-all ${
-                  selectedPayment === option.id
-                    ? 'border-blue-400 bg-blue-600/30'
-                    : 'border-blue-500/20 bg-white/5 hover:border-blue-400/50'
-                }`}
-              >
-                <div className="text-2xl mb-1">{option.icon}</div>
-                <p className="text-white font-medium">{option.name}</p>
-                <p className="text-xs text-blue-400">余额: {Number(option.balance).toFixed(4)}</p>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 金额输入 */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-blue-300 mb-2">购买 PATENT 数量</label>
-          <div className="relative">
-            <input
-              type="number"
-              placeholder="输入购买 PATENT 数量"
-              value={purchaseAmount}
-              onChange={(e) => setPurchaseAmount(e.target.value)}
-              className="w-full bg-white/10 border border-blue-500/30 rounded-xl px-4 py-4 text-white text-lg placeholder-blue-400/50 focus:outline-none focus:border-blue-400"
-            />
-            {/* <span className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400">PATENT</span> */}
-          </div>
-          {/* 快速金额按钮 */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            {['100', '500', '1000', '5000'].map((amount) => (
-              <button
-                key={amount}
-                onClick={() => setPurchaseAmount(amount)}
-                className="px-3 py-1 bg-blue-600/30 text-blue-200 rounded-lg text-sm hover:bg-blue-600/50 transition-colors"
-              >
-                ${amount}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 预览 */}
-        {purchaseAmount && parseFloat(purchaseAmount) > 0 && (
-          <div className="bg-black/20 rounded-xl p-4 mb-6">
-            <h4 className="text-sm font-medium text-blue-300 mb-3">购买预览</h4>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-blue-400">购买 PATENT 数量</span>
-                <span className="text-green-400 font-semibold">{patentAmount.toLocaleString()} PATENT</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-blue-400">购买金额</span>
-                <span className="text-white">${purchaseValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</span>
-              </div>
-              {selectedPayment === 'ETH' && (
-                <>
-                  <div className="flex justify-between">
-                    <span className="text-blue-400">需要支付 ETH</span>
-                    <span className="text-white">{ethCost.toFixed(6)} ETH</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-blue-400">ETH 价格</span>
-                    <span className="text-white">${ethPriceValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                  </div>
-                </>
-              )}
-              <div className="flex justify-between">
-                <span className="text-blue-400">PATENT 单价</span>
-                <span className="text-white">${patentPrice.toFixed(4)} / PATENT</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <button
-          onClick={handlePurchase}
-          disabled={
-            !address || 
-            !purchaseAmount || 
-            parseFloat(purchaseAmount) <= 0 || 
-            isPurchasing || 
-            isConfirming ||
-            (selectedPayment === 'ETH' && ethBalance && Number(formatEther(ethBalance.value)) < ethCost)
-          }
-          className="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-4 rounded-xl font-medium hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all text-lg"
-        >
-          {isPurchasing || isConfirming ? (
-            <span className="flex items-center justify-center">
-              <span className="animate-spin mr-2">⏳</span>
-              {isPurchasing ? '发送交易中...' : '等待确认...'}
-            </span>
-          ) : isPurchaseSuccess ? (
-            '✅ 购买成功！'
-          ) : (
-            `🛒 购买 ${patentAmount > 0 ? `${patentAmount.toLocaleString()} PATENT` : 'PATENT 代币'}`
-          )}
-        </button>
-
-        {/* 购买错误提示 */}
-        {purchaseError && (
-          <div className="mt-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
-            <div className="flex items-start space-x-3">
-              <div className="text-2xl">❌</div>
-              <div className="flex-1">
-                <p className="text-red-400 font-medium mb-1">购买失败</p>
-                <p className="text-red-300 text-sm">
-                  {purchaseError.message?.includes('User rejected') || 
-                   purchaseError.message?.includes('user rejected') ||
-                   purchaseError.message?.includes('rejected')
-                    ? '您已取消交易。如需购买，请重新点击按钮并确认交易。'
-                    : purchaseError.message || '未知错误，请稍后重试'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 购买成功提示 */}
-        {isPurchaseSuccess && (
-          <div className="mt-4 p-4 bg-green-500/20 border border-green-500/30 rounded-xl">
-            <div className="flex items-start space-x-3">
-              <div className="text-2xl">✅</div>
-              <div className="flex-1">
-                <p className="text-green-400 font-medium mb-1">购买成功！</p>
-                <p className="text-green-300 text-sm">
-                  已成功获得 {purchaseAmount.toLocaleString()} PATENT 代币
-                </p>
-                {purchaseHash && (
-                  <p className="text-green-400/70 text-xs mt-2 font-mono">
-                    交易哈希: {purchaseHash.slice(0, 10)}...{purchaseHash.slice(-8)}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 购买交易失败提示 */}
-        {isPurchaseFailed && (
-          <div className="mt-4 p-4 bg-red-500/20 border border-red-500/30 rounded-xl">
-            <div className="flex items-start space-x-3">
-              <div className="text-2xl">⚠️</div>
-              <div className="flex-1">
-                <p className="text-red-400 font-medium mb-1">交易执行失败</p>
-                <p className="text-red-300 text-sm">
-                  可能的原因：
-                </p>
-                <ul className="text-red-300/80 text-xs mt-2 list-disc list-inside space-y-1">
-                  <li>ETH 金额不足</li>
-                  <li>超过每日铸币限额</li>
-                  <li>购买合约未授权铸币权限</li>
-                  <li>合约已暂停</li>
-                </ul>
-                {purchaseHash && (
-                  <p className="text-red-400/70 text-xs mt-2 font-mono">
-                    交易哈希: {purchaseHash.slice(0, 10)}...{purchaseHash.slice(-8)}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        <p className="text-xs text-blue-400 text-center mt-4">
-          {selectedPayment === 'ETH' && ethCost > 0 && (
-            <>需要支付: {ethCost.toFixed(6)} ETH ({purchaseValueUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD)</>
-          )}
-          {selectedPayment !== 'ETH' && '注意：购买功能需要管理员处理'}
-        </p>
-      </div>
 
       {/* 购买说明 */}
       <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-blue-500/20">
