@@ -321,6 +321,27 @@ const PatentManagement: React.FC = () => {
               onChange={(v) => setAddForm({ ...addForm, ipfsMetadata: v })}
             />
           </div>
+          
+          {/* 一键填充演示案例按钮 */}
+          <div className="mt-4 flex justify-start">
+            <button
+              onClick={() => {
+                setAddForm({
+                  patentNumber: 'US11234567B2',
+                  title: '一种用于自动驾驶车辆的多传感器融合决策系统',
+                  inventors: 'David Brown, Zhao Ming',
+                  valuationUSD: '30000000',
+                  weight: '40',
+                  ipfsMetadata: 'QmFZ8Y7A1T9V5J3R6H2M4XQPBKCDL'
+                });
+              }}
+              type="button"
+              className="px-4 py-2 bg-blue-600/30 text-blue-300 rounded-lg text-sm font-medium hover:bg-blue-600/50 transition-colors border border-blue-500/30"
+            >
+              填充演示案例
+            </button>
+          </div>
+          
           <div className="mt-6">
             <button
               onClick={() => {
