@@ -7,36 +7,27 @@ import { http } from 'viem';
 import { sepolia } from 'wagmi/chains';
 import { ConnectKitProvider, getDefaultConfig } from 'connectkit';
 import { Toaster } from 'react-hot-toast'; 
+const rpcUrl = "https://sepolia.infura.io/v3/cf8ac5c33c5e4e30a82b9859de4ab411";
 
 export const config = createConfig(
   getDefaultConfig({
+    // 必需的配置
     appName: 'PatentCoin',
     appDescription: '专利资产代币化平台',
     appUrl: 'https://patentcoin.com',
     appIcon: 'https://patentcoin.com/logo.png',
     walletConnectProjectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || 'placeholder-project-id',
+    
+    // 链配置
     chains: [sepolia],
-    transports: {
-      [sepolia.id]: http('https://sepolia.infura.io/v3/cf8ac5c33c5e4e30a82b9859de4ab411'),
-    },
   })
 );
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <WagmiProvider 
-      config={config}
-      reconnectOnMount={false}
-    >
+    <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <ConnectKitProvider 
           mode="auto"
@@ -50,8 +41,11 @@ function App() {
             <Toaster />
             <div className="min-h-screen">
               <Routes>
+                {/* 用户端路由 */}
                 <Route path="/" element={<UserDashboard />} />
+                {/* 管理端路由 */}
                 <Route path="/admin" element={<AdminDashboard />} />
+             
               </Routes>   
             </div>
           </Router>
