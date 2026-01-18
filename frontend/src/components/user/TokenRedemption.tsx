@@ -203,7 +203,8 @@ const TokenRedemption: React.FC = () => {
             args: [
               parseEther(redeemAmount || '0'),
               selectedAsset as `0x${string}`
-            ]
+            ],
+             gas: BigInt(200000),
           } as any)}
           disabled={
             isPaused ||

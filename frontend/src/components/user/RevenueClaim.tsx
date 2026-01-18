@@ -108,6 +108,7 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
   }, [roundsInfo]);
 
   const { writeContract, data: claimHash, isPending: isClaiming, error: claimError } = useWriteContract();
+
   const { isLoading: isClaimConfirming, isSuccess: isClaimSuccess } = useWaitForTransactionReceipt({
     hash: claimHash,
   });
@@ -147,6 +148,7 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
       abi: PATENT_COIN_ABI,
       functionName: 'claimRevenue',
       args: [BigInt(roundId)],
+      gas: BigInt(200000),
     } as any);
   };
 
@@ -159,13 +161,7 @@ const RevenueClaim: React.FC<RevenueClaimProps> = ({ patentBalance, totalSupply,
       alert('没有可领取的收益');
       return;
     }
-
-    // 注意：批量领取需要调用 RevenueDistributor 模块的 batchClaimRevenue
-    // 但主合约可能没有这个函数，需要逐个领取
     alert(`将领取 ${unclaimedRounds.length} 轮收益，请逐个确认交易`);
-    
-    // 这里可以实现批量领取逻辑
-    // 由于需要多次交易确认，建议用户逐个领取
   };
 
   // 计算用户持仓比例

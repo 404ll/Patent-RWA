@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther, formatUnits, parseEther } from 'viem';
-import { PATENT_COIN_ADDRESS, PATENT_COIN_ABI, PATENT_COIN_PURCHASE_ADDRESS } from '../../config/contracts';
+import {  PATENT_COIN_PURCHASE_ADDRESS } from '../../config/contracts';
 import { usePatentCoin } from '../../hooks/usePatentCoin';
 import { useEthPrice } from '../../hooks/useEthPrice';
-import { useContractPaused } from '../../hooks/useContractPaused';
 
 const TokenPurchase: React.FC = () => {
   const { address } = useAccount();
@@ -118,6 +117,7 @@ const TokenPurchase: React.FC = () => {
           functionName: 'buyWithETH',
           args: [patentAmountWei],
           value: ethAmountWei,
+          gas: BigInt(200000),
         } as any);
       } catch (error: any) {
         console.error('购买失败:', error);
