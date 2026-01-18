@@ -62,49 +62,8 @@ const UserDashboard: React.FC = () => {
     ? Number(formatUnits(patentStats.backingRatio, 6)).toFixed(4)
     : '0.0000'
 
-  // 未连接钱包时显示连接页面
-  if (!isConnected) {
+  if (isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
-        <WalletHeader 
-          title="基于专利的 RWA 系统" 
-          subtitle="基于以太坊的专利真实世界资产(RWA)代币化平台"
-        />
-        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-          <div className="text-center max-w-md mx-auto px-4">
-            <h1 className="text-3xl font-bold text-white mb-2">
-              基于专利的 RWA 系统
-            </h1>
-            <p className="text-blue-300 mb-8">
-              连接钱包以开始
-            </p>
-
-            {/* <div className="bg-white/5 border border-blue-500/30 rounded-2xl px-6 py-6 shadow-2xl backdrop-blur-md space-y-4">
-              <div className="flex items-center space-x-3 justify-center">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold">
-                  🔗
-                </div>
-                <div className="text-left">
-                  <p className="text-white font-semibold">连接您的钱包</p>
-                  <p className="text-xs text-blue-200">支持 MetaMask / OKX / WalletConnect</p>
-                </div>
-              </div>
-
-              <div className="bg-black/30 rounded-xl border border-blue-500/20 px-4 py-3 flex justify-center">
-                <ConnectKitButton />
-              </div>
-
-              <p className="text-xs text-blue-300 text-center">
-                未安装钱包？可在移动端或浏览器扩展安装后再重试
-              </p>
-            </div> */}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Header */}
       <WalletHeader 
@@ -168,6 +127,26 @@ const UserDashboard: React.FC = () => {
         {/* {activeTab === 'redemption' && <TokenRedemption />} */}
         {activeTab === 'revenue' && <RevenueClaim patentBalance={balance} totalSupply={tokenInfo.totalSupply} revenueInfo={revenueInfo} />}
       </main>
+    </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+      <WalletHeader 
+        title="基于专利的 RWA 系统" 
+        subtitle="基于以太坊的专利真实世界资产(RWA)代币化平台"
+      />
+      <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+        <div className="text-center max-w-md mx-auto px-4">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            基于专利的 RWA 系统
+          </h1>
+          <p className="text-blue-300 mb-8">
+            连接钱包以开始
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

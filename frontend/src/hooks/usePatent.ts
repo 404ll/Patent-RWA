@@ -73,13 +73,13 @@ export function useAllPatents(patentNumbers?: string[]) {
   });
 
   // 调试信息
-  console.log('=== useAllPatents 调试信息 ===');
-  console.log('resolvedNumbers:', resolvedNumbers);
-  console.log('assetManagerAddress:', assetManagerAddress);
-  console.log('contracts.length:', contracts?.length || 0);
-  console.log('data:', data);
-  console.log('isLoading:', isLoading);
-  console.log('error:', error);
+  // console.log('=== useAllPatents 调试信息 ===');
+  // console.log('resolvedNumbers:', resolvedNumbers);
+  // console.log('assetManagerAddress:', assetManagerAddress);
+  // console.log('contracts.length:', contracts?.length || 0);
+  // console.log('data:', data);
+  // console.log('isLoading:', isLoading);
+  // console.log('error:', error);
 
   // useReadContracts 返回的数据结构：{ status: 'success' | 'error', result?: any, error?: Error }[]
   const patents: PatentAsset[] = useMemo(() => {
@@ -92,7 +92,7 @@ export function useAllPatents(patentNumbers?: string[]) {
       return [];
     }
     
-    console.log('data.length:', data.length);
+    // console.log('data.length:', data.length);
     
     const mapped = data.map((res: any, idx: number) => {
       console.log(`处理专利 ${idx}:`, res);
@@ -133,7 +133,7 @@ export function useAllPatents(patentNumbers?: string[]) {
         active: Boolean(patent.active),
       } as PatentAsset;
       
-      console.log(`专利 ${idx} 处理结果:`, patentAsset);
+      // console.log(`专利 ${idx} 处理结果:`, patentAsset);
       return patentAsset;
     });
     

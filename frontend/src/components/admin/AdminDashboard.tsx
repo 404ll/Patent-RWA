@@ -72,7 +72,6 @@ const AdminDashboard: React.FC = () => {
     { id: 'contract', name: '合约控制', icon: '⚙️' },
   ];
 
-  // 未连接钱包时显示连接页面
   if (!isConnected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -108,14 +107,12 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
       <WalletHeader 
         title="基于专利的 RWA 系统管理后台" 
         subtitle="Administrator Panel"
         showUserLink={true}
       />
 
-      {/* Navigation */}
       <nav className="bg-black/20 backdrop-blur-sm border-b border-purple-500/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-1">
@@ -137,7 +134,6 @@ const AdminDashboard: React.FC = () => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {activeTab === 'overview' && (
           <AdminOverview
