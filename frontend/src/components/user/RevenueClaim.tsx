@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { formatEther, formatUnits, type Abi } from 'viem';
+import { formatUnits, type Abi } from 'viem';
 import { PATENT_COIN_ADDRESS, PATENT_COIN_ABI, REVENUE_DISTRIBUTOR_ABI } from '../../config/contracts';
 import { RevenueInfo } from '../../types/contracts';
 import { useContractPaused } from '../../hooks/useContractPaused';

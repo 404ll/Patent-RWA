@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt, useReadContract, useReadContracts } from 'wagmi';
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, useReadContracts } from 'wagmi';
 import { formatEther, parseEther, isAddress, type Abi } from 'viem';
 import { PATENT_COIN_ADDRESS, PATENT_COIN_ABI, CONTRACT_ADDRESSES } from '../../config/contracts';
 import { COMPLIANCE_MANAGER_ABI } from '../../config/contracts';

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAccount,  useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import {  useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { parseEther, formatEther } from 'viem';
 import { PATENT_COIN_ADDRESS } from '../../config/contracts';
 import { PATENT_COIN_ABI } from '../../config/contracts';

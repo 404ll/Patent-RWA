@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
-import { formatEther, formatUnits } from 'viem';
+import { formatUnits } from 'viem';
 import TokenPurchase from './TokenPurchase';
-import TokenRedemption from './TokenRedemption';
 import TokenTransfer from './TokenTransfer';
 import RevenueClaim from './RevenueClaim';
 import Portfolio from './Portfolio';
